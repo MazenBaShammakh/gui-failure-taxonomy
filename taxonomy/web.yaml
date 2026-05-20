@@ -1,0 +1,77 @@
+# GUI Agent Failures — Web Platform
+#
+# Web-specific failures from the progress updates. Failures that also
+# appear on mobile are tracked in cross-platform.yaml unless the web
+# manifestation is distinct enough to warrant its own entry.
+
+- id: F-WEB-MM-TMP-001
+  platform: web
+  agent_type: multimodal
+  category: temporal_dynamics
+  failure: dynamically_rendered_content_outside_viewport
+  description: >
+    Dynamically rendered elements (carousels, lazy-loaded content,
+    event-driven mounts) are limited to the current viewport at snapshot
+    time. Content rendered later or outside the viewport is invisible to
+    the agent's reasoning step, even when present in the live page.
+  assessment_ref: F8.6
+  cause: software-side
+  stage: prediction
+  examples:
+    - scenario_id: F-WEB-MM-TMP-001-a
+      source: controlled
+      app: gui-failure-lab
+      task: Add Gamepad to the cart.
+      notes: >
+        Multimodal agent (gemini-2.5-flash, gemini-3-flash-preview,
+        grok-4-fast-reasoning) failed on slidable/dynamic elements that
+        appeared/disappeared in the viewport (March 2026 (1)).
+
+- id: F-WEB-MM-NAV-002
+  platform: web
+  agent_type: multimodal
+  category: navigation_discoverability
+  failure: poor_multi_tab_or_multi_window_handling
+  description: >
+    Tasks that span multiple browser tabs or windows are not handled
+    correctly. The agent loses track of which tab the task lives in, or
+    cannot route an action to the correct tab when content opens
+    elsewhere. Closest catalog fit is F9.3 (focus-stealing), but the
+    failure is in discovering and tracking the active context rather
+    than in losing focus during a single interaction.
+  assessment_ref: F9.3
+  cause: joint
+  stage: prediction
+  examples:
+    - scenario_id: F-WEB-MM-NAV-002-a
+      source: live
+      app: undisclosed_deals_site
+      task: What are today's Limited Time Offers deals?
+      notes: >
+        Multi-tab navigation broke the agent's task flow (April 2026 (1),
+        slide 10). Candidate for a new failure ID if multi-tab is
+        recurring; tagged under F9.3 provisionally.
+
+- id: F-WEB-VO-PRC-003
+  platform: web
+  agent_type: vision-only
+  category: perceptibility
+  failure: visual_occlusion_by_blocking_modal_overlay
+  description: >
+    A modal renders visually on top of the target element, hiding it.
+    Vision-only agents see the modal but cannot perceive the obscured
+    content underneath, even if the page structurally still exposes it.
+    Distinct from F9.1 (invisible overlay) — here the overlay is
+    visible, but it occludes the target.
+  assessment_ref: F1.3
+  cause: software-side
+  stage: prediction
+  examples:
+    - scenario_id: F-WEB-VO-PRC-003-a
+      source: live
+      app: BBC
+      task: Find the latest news about climate change.
+      notes: >
+        Registration popup occludes article content; vision-only path
+        cannot perceive the underlying CTA (proposal, Failure Example 5,
+        fig. 14, considered from the vision-only perspective).

@@ -1,0 +1,78 @@
+# Field definitions and allowed values for taxonomy entries.
+# Machine-readable validation lives in schemas/entry.schema.json.
+# This file is the human-readable companion.
+
+fields:
+  id:
+    type: string
+    pattern: "F-{PLATFORM}-{AGENT}-{CATEGORY}-{NNN}"
+    platform_codes:
+      web:              WEB
+      mobile:           MOB
+      desktop:          DSK
+      cross-platform:   XPL
+    agent_codes:
+      vision-only:      VO
+      multimodal:       MM
+    category_codes:
+      visual_vs_structural:         VS
+      accessibility_semantics:      AS
+      gestures:                     GS
+      content_layout:               CL
+      navigation_flow:              NF
+      forms_validations_feedback:   FV
+      visual_affordance:            VA
+      action_affordance:            AA
+
+  platform:
+    type: enum
+    values: [web, mobile, desktop, cross-platform]
+
+  agent_type:
+    type: enum
+    values: [vision-only, multimodal]
+
+  category:
+    type: enum
+    values:
+      - visual_vs_structural
+      - accessibility_semantics
+      - gestures
+      - content_layout
+      - navigation_flow
+      - forms_validations_feedback
+      - visual_affordance
+      - action_affordance
+
+  failure:
+    type: string
+    description: Snake-case identifier for the specific failure root cause.
+
+  description:
+    type: string
+    description: Human-readable explanation of the failure and why it occurs.
+
+  cause:
+    type: enum
+    values: [software-side, agent-side, joint]
+    notes: >
+      software-side: addressable via software design (RQ4).
+      agent-side:    addressable via agent improvement.
+      joint:         both software and agent contribute.
+
+  stage:
+    type: enum
+    values: [prediction, execution, unclear]
+    notes: >
+      prediction: failure in agent reasoning / action selection.
+      execution:  failure in performing the chosen action.
+      unclear:    cannot determine from available evidence.
+
+  examples:
+    required: false
+    item_fields:
+      scenario_id:  {type: string, pattern: "{parent_id}-{letter}"}
+      source:       {type: enum, values: [controlled, live]}
+      app:          {type: string}
+      route:        {type: string}
+      notes:        {type: string, required: false}

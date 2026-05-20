@@ -1,0 +1,20 @@
+# GUI Agent Failures — Desktop Platform
+#
+# Status (as of May 2026): no desktop task executions have been run yet
+# (Apr 2026 (2) reports 0 / 10 desktop tasks executed). Consequently
+# this file contains no observed-failure entries — only a placeholder
+# documenting that fact, so it is clear that the absence is real rather
+# than missing data.
+#
+# Expected to be populated once Agent S (the selected desktop agent per
+# the May 2026 update) has been run against the OSWorld subset (377 tasks)
+# and the controlled gui-failure-lab Electron app.
+#
+# Desktop-specific candidates not yet observed but already in
+# failure-assessment.md:
+#   F3.5 (window not focusable in a11y tree) -> structural_consistency
+#   F1.6 (offscreen secondary window)        -> perceptibility
+#   F8.7 (DPI scaling misaligned hitbox)     -> temporal_dynamics
+#   F9.3 (focus-stealing dialog)             -> interaction_scope
+
+[]

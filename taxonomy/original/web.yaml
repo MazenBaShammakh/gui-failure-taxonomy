@@ -1,0 +1,17 @@
+- id: F-WEB-MM-VS-001
+  platform: web
+  agent_type: multimodal
+  category: visual_vs_structural
+  failure: competing_overlapping_regions_dom_vs_layout
+  description: >
+    DOM hierarchy and visual layout disagree on which element occupies a region,
+    causing the agent to target the wrong node.
+  cause: software-side
+  stage: prediction
+  examples:
+    - scenario_id: F-WEB-MM-VS-001-a
+      source: controlled
+      app: next-failure-lab
+      route: /faulty/failures/F-WEB-MM-VS-001
+      notes: >
+        Agent clicks visually-correct CTA but DOM event fires on overlapping container.

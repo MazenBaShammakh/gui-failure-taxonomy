@@ -1,0 +1,103 @@
+# Field definitions and allowed values for taxonomy entries.
+# Machine-readable validation lives in schemas/entry.schema.json.
+# This file is the human-readable companion.
+#
+# Aligned with:
+#   - taxonomy.md           (tier structure, attribute model, storage workflow)
+#   - failure-assessment.md (9-category catalog, F1.1 - F9.7)
+
+fields:
+  id:
+    type: string
+    pattern: "F-{PLATFORM}-{AGENT}-{CATEGORY}-{NNN}"
+    platform_codes:
+      web:              WEB
+      mobile:           MOB
+      desktop:          DSK
+      cross-platform:   XPL
+    agent_codes:
+      vision-only:      VO
+      text-only:        TO
+      multimodal:       MM
+    category_codes:
+      perceptibility:               PRC
+      identifiability:              IDF
+      structural_consistency:       STR
+      interaction_affordance:       AFD
+      navigation_discoverability:   NAV
+      content_organization:         CNT
+      state_feedback:               FBK
+      temporal_dynamics:            TMP
+      interaction_scope:            SCP
+
+  platform:
+    type: enum
+    values: [web, mobile, desktop, cross-platform]
+
+  agent_type:
+    type: enum
+    values: [vision-only, text-only, multimodal]
+    notes: >
+      vision-only: processes screenshots only (VO).
+      text-only:   processes DOM / a11y tree only (TO).
+      multimodal:  processes both representations (MM).
+
+  category:
+    type: enum
+    values:
+      - perceptibility              # F1: can the agent see the element exists?
+      - identifiability             # F2: can the agent understand what it is?
+      - structural_consistency      # F3: does the structured tree match the rendered UI?
+      - interaction_affordance      # F4: can the agent figure out how to interact?
+      - navigation_discoverability  # F5: can the agent find the path to the target?
+      - content_organization        # F6: is information structured for agent reasoning?
+      - state_feedback              # F7: does the UI communicate state and outcomes?
+      - temporal_dynamics           # F8: can the agent keep up with UI changes over time?
+      - interaction_scope           # F9: are actions contained to the intended target?
+
+  failure:
+    type: string
+    description: Snake-case identifier for the specific failure root cause.
+
+  description:
+    type: string
+    description: Human-readable explanation of the failure and why it occurs.
+
+  assessment_ref:
+    type: string
+    required: false
+    pattern: "F[1-9]\\.[0-9]+"
+    description: >
+      Cross-reference to the failure ID in failure-assessment.md
+      (e.g. F1.1, F4.3, F9.2). Optional but recommended for traceability.
+
+  cause:
+    type: enum
+    values: [software-side, agent-side, joint]
+    notes: >
+      software-side: addressable via software design (RQ4).
+      agent-side:    addressable via agent improvement.
+      joint:         both software and agent contribute.
+
+  stage:
+    type: enum
+    values: [prediction, execution, unclear]
+    notes: >
+      prediction: failure in agent reasoning / action selection.
+      execution:  failure in performing the chosen action.
+      unclear:    cannot determine from available evidence.
+
+  examples:
+    required: false
+    item_fields:
+      scenario_id:  {type: string, pattern: "{parent_id}-{letter}"}
+      source:       {type: enum, values: [controlled, live, benchmark, literature]}
+      app:          {type: string}
+      route:        {type: string, required: false}
+      task:         {type: string, required: false}
+      notes:        {type: string, required: false}
+    source_notes: >
+      controlled: scenario reproduced in gui-failure-lab via CFI.
+      live:       observed on a deployed website / app in production.
+      benchmark:  drawn from Mind2Web, AITW, OSWorld, etc.
+      literature: motivating example cited from a published paper.

@@ -26,6 +26,15 @@
         Multimodal agent (gemini-2.5-flash, gemini-3-flash-preview,
         grok-4-fast-reasoning) failed on slidable/dynamic elements that
         appeared/disappeared in the viewport (March 2026 (1)).
+    - scenario_id: F-WEB-MM-TMP-001-b
+      source: benchmark
+      app: https://www.eventbrite.com
+      task: Search for a paid fishing class event on chicago
+      notes: >
+        Mind2Web mind2web-web-1001. Results are appended via infinite
+        scroll with no terminal state, so the agent keeps scrolling through
+        continuously rendered content. (Secondary read: F6 content
+        organization — no pagination / end-of-list signal.)
 
 - id: F-WEB-MM-NAV-002
   platform: web
@@ -75,3 +84,150 @@
         Registration popup occludes article content; vision-only path
         cannot perceive the underlying CTA (proposal, Failure Example 5,
         fig. 14, considered from the vision-only perspective).
+
+- id: F-WEB-MM-TMP-002
+  platform: web
+  agent_type: multimodal
+  category: temporal_dynamics
+  failure: slow_page_load_exceeds_agent_timing_budget
+  description: >
+    The page takes long enough to fully load (heavy assets, slow backend,
+    deferred hydration) that the agent acts before the UI is ready, stalls
+    waiting, or the run crashes outright. Distinct from F8.1
+    (popup-after-snapshot) and F8.6 (off-viewport dynamic content): here
+    the failure is load latency itself rather than a specific late-mounted
+    element.
+  # Candidate failure: not yet catalogued in failure-assessment.md.
+  cause: joint
+  stage: execution
+  examples:
+    - scenario_id: F-WEB-MM-TMP-002-a
+      source: benchmark
+      app: https://www.mbta.com
+      task: View the latest job openings in safety with a salary above 100k per annum, check the details, and apply.
+      notes: >
+        Mind2Web mind2web-web-1007. The site took a long time to fully
+        load and the agent crashed before it could proceed.
+    - scenario_id: F-WEB-MM-TMP-002-b
+      source: benchmark
+      app: https://www.carmax.com
+      task: see Nissan and Honda cars for sale near Kentwood, MI 49512
+      notes: >
+        Mind2Web mind2web-web-0988. After the agent navigated (partly from
+        prior knowledge of the site) the page hung, blocking progress.
+
+- id: F-WEB-MM-TMP-003
+  platform: web
+  agent_type: multimodal
+  category: temporal_dynamics
+  failure: stale_route_to_removed_page
+  description: >
+    The agent forces navigation to a URL/route that no longer exists in
+    the current version of the site (e.g. drawn from outdated model
+    knowledge). The site has changed over time relative to the agent's
+    expectations, and the targeted page is gone.
+  # Candidate failure: not yet catalogued in failure-assessment.md.
+  cause: joint
+  stage: prediction
+  examples:
+    - scenario_id: F-WEB-MM-TMP-003-a
+      source: benchmark
+      app: https://www.kayak.com
+      task: Check travel restrictions when traveling from US to Cambodia.
+      notes: >
+        Mind2Web mind2web-web-1052 (SeeAct). Agent forced navigation into a
+        page that does not appear to exist in the latest version of the
+        site. Same run also showed a limited-viewport perceptibility issue
+        (SeeAct treats the GUI from a human viewport perspective, not
+        capturing the full screen).
+
+- id: F-WEB-MM-AFD-001
+  platform: web
+  agent_type: multimodal
+  category: interaction_affordance
+  failure: combobox_value_requires_dropdown_selection_to_commit
+  description: >
+    A type-ahead / autocomplete field accepts typed text but does not
+    commit the value unless an option is explicitly clicked from the
+    suggestion dropdown. Typing alone leaves the field unset (or the
+    suggestion list does not update), so the agent believes the value is
+    entered when it is not. Related: dropdown options whose clicks are
+    swallowed and produce no effect.
+  # Candidate failure: not yet catalogued in failure-assessment.md.
+  cause: software-side
+  stage: execution
+  examples:
+    - scenario_id: F-WEB-MM-AFD-001-a
+      source: benchmark
+      app: https://www.qatarairways.com
+      task: Check travel requirements for trips between Tokyo and Guangzhou.
+      notes: >
+        Mind2Web mind2web-web-1039. The "check your travel requirements"
+        searchable dropdown autofills text but the value is only retained
+        when picked from the dropdown; on the first field the matching list
+        did not update from typing at all.
+    - scenario_id: F-WEB-MM-AFD-001-b
+      source: benchmark
+      app: https://www.delta.com
+      task: Find the status of March 25 flights from New York airports to Columbus in Ohio.
+      notes: >
+        Mind2Web mind2web-web-0982 (gemini-flash-latest). Agent struggled to
+        click an option in the dropdown list — the click had no effect.
+        (Positive note from the same run: it recovered by retrying the term
+        "NYC" after "New York".)
+
+- id: F-WEB-MM-FBK-001
+  platform: web
+  agent_type: multimodal
+  category: state_feedback
+  failure: agent_ignores_surfaced_state_or_error_feedback
+  description: >
+    The UI does communicate an outcome — a validation error, a status
+    message, or an end-of-content boundary — but the agent does not consume
+    it and acts as if the state were unchanged (re-submitting, re-filling,
+    or continuing to scroll). First catalogued entry for F7; cause leans
+    joint because the signal is present but the agent fails to attend to it.
+  # Candidate failure: not yet catalogued in failure-assessment.md (first F7 entry).
+  cause: joint
+  stage: prediction
+  examples:
+    - scenario_id: F-WEB-MM-FBK-001-a
+      source: benchmark
+      app: https://www.delta.com
+      task: find my trip with confirmation number SFTBAO including first and last name Joe Lukeman
+      notes: >
+        Mind2Web mind2web-web-0981 (gemini-flash-latest). The form surfaced
+        an error message, but the agent did not read it and simply refilled
+        the form again.
+    - scenario_id: F-WEB-MM-FBK-001-b
+      source: benchmark
+      app: https://www.ign.com
+      task: Find an editor's choice review with a score of 10 in the boardgame category.
+      notes: >
+        Mind2Web mind2web-web-1030. Agent kept issuing scroll-down actions
+        after the page had already reached the bottom — no end-of-content
+        state was registered. (Positive note from the same run: German
+        content was handled without trouble, contrasting F6.5.)
+
+- id: F-WEB-MM-CNT-001
+  platform: web
+  agent_type: multimodal
+  category: content_organization
+  failure: heading_label_mismatch_breaks_grounding
+  description: >
+    The agent navigates to the correct destination but the page heading or
+    label does not match the wording the task implies, so the agent does
+    not recognize the content as the answer and fails to read/act on it.
+  # Candidate failure: not yet catalogued in failure-assessment.md.
+  cause: joint
+  stage: prediction
+  examples:
+    - scenario_id: F-WEB-MM-CNT-001-a
+      source: benchmark
+      app: https://www.rottentomatoes.com
+      task: View all of the Most Popular TV on RT.
+      notes: >
+        Mind2Web mind2web-web-1037. Agent navigated to the Most Popular TV
+        listing but did not read its content — plausibly because the page
+        is titled "Best TV Shows (2026)" rather than an all-time / "most
+        popular" label matching the task wording.

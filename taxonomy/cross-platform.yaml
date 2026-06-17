@@ -43,6 +43,14 @@
         Agent scrolled to the target accordion question but could not
         expand it — the accordion control is not exposed as an actionable
         node (proposal, Failure Example 2, fig. 10).
+    - scenario_id: F-XPL-MM-PRC-001-d
+      source: benchmark
+      app: https://www.imdb.com
+      task: Browse the list of top 250 movies and add the first one to my watchlist.
+      notes: >
+        Mind2Web mind2web-web-0987. Nothing on the page was selectable —
+        no actionable node was produced for the list items the agent
+        needed to target.
 
 - id: F-XPL-VO-PRC-002
   platform: cross-platform
@@ -119,6 +127,15 @@
       notes: >
         Agent confused data-display elements with interaction elements
         (April 2026 (1), slide 11).
+    - scenario_id: F-XPL-MM-IDF-002-b
+      source: benchmark
+      app: https://www.carmax.com
+      task: search gas pickup truck in Fremont with 2010 and 2017 with less than 80000 mile
+      notes: >
+        Mind2Web mind2web-web-0980 (gemini-flash-latest). The year picker
+        looks like a native <select> but is not one, so the agent's select
+        interaction does not apply (the offered range also lacks a 2010
+        option — a separate data-availability limit).
 
 - id: F-XPL-VO-IDF-003
   platform: cross-platform
@@ -173,6 +190,15 @@
         Multiple list items with near-identical "New York City" labels;
         agent stalled, reconsidering the list (proposal, Failure Example 3,
         fig. 12).
+    - scenario_id: F-XPL-MM-CNT-001-c
+      source: benchmark
+      app: https://www.underarmour.com
+      task: Search the cheapest Curry brand unisex athletic shoes with the number 5.5, add to cart and checkout.
+      notes: >
+        Mind2Web mind2web-web-0991. After correctly sorting the product
+        list the agent scrolled past the first option and selected a
+        not-cheapest shoe (apparently matched by name, e.g. "Curry 3Z 24"),
+        short-circuiting on a plausible-looking item.
 
 - id: F-XPL-MM-CNT-002
   platform: cross-platform
@@ -257,6 +283,16 @@
         Multimodal agent (gemini-2.5-flash, gemini-3-flash-preview,
         grok-4-fast-reasoning) failed to close a blocking modal before
         proceeding (March 2026 (1)).
+    - scenario_id: F-XPL-MM-SCP-001-d
+      source: benchmark
+      app: https://www.tvguide.com
+      task: Find more films from the director of Smile.
+      notes: >
+        Mind2Web mind2web-web-1013. Agent kept operating on the page behind
+        a popup, ignoring it for several steps before eventually dismissing
+        it. Boundary case: on IKEA (mind2web-web-1041, gpt-5) a cookie popup
+        that did not block interaction was correctly ignored — the modal
+        only becomes a failure when it intercepts input.
 
 - id: F-XPL-VO-SCP-002
   platform: cross-platform
@@ -331,3 +367,21 @@
       notes: >
         England link inside a nested submenu (proposal, Failure Example 11,
         fig. 21 right).
+    - scenario_id: F-XPL-MM-NAV-001-c
+      source: benchmark
+      app: https://www.uniqlo.com
+      task: Show me the list of Men's Blazers, Black, Size M.
+      notes: >
+        Mind2Web mind2web-web-1019. Agent clicks the menu and it opens, but
+        on the next step (mouse moved away) the hover-only menu collapses,
+        so the target link is gone before it can be clicked. (Distinct from
+        the German-locale stall catalogued for Uniqlo under F6.5.)
+    - scenario_id: F-XPL-MM-NAV-001-d
+      source: benchmark
+      app: https://www.discogs.com
+      task: Open the page with an overview about the submission of releases.
+      notes: >
+        Mind2Web mind2web-web-1034. Agent failed to hover over the
+        "Community" tab bar but recovered via a longer path and eventually
+        succeeded. Contrast: on mind2web-web-1035 (same site) the tab
+        menuitem accepted a click rather than requiring hover.

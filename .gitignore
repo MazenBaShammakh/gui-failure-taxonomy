@@ -2,3 +2,8 @@ output/
 __pycache__/
 *.pyc
 .env
+task_failure_assignments.md
+EXECUTIVE_SUMMARY.md
+specs/
+.claude/
+benchmark/

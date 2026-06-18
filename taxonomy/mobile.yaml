@@ -157,38 +157,67 @@
         (Salehnamadi et al., Latte, CHI 2021): rating bar implemented
         as swipe, agent issues a click and the action fails.
 
-- id: F-MOB-MM-IDF-001
+- id: F-MOB-TO-IDF-001
   platform: mobile
-  agent_type: multimodal
+  agent_type: text-only
   category: identifiability
   failure: entity_rename_breaks_name_based_search_grounding
   description: >
-    The agent searches for an app or entity by the name given in the task,
-    but the current label on the device differs (rebrand, package id vs
-    display name, alternate store listing). The agent cannot match the task
-    name to the on-screen entity and stalls or scrolls indefinitely. Cause
-    leans joint: the world/label changed (software-side), and the agent
-    lacks a recovery strategy beyond literal name matching (agent-side).
+    A text-only agent searches for an app or entity by the literal name
+    given in the task, but the current label in the a11y tree / store
+    listing differs (rebrand, display name vs package id, alternate
+    listing). The agent cannot match the task name to any node and falls
+    back to re-querying variants or scrolling without progress. Cause leans
+    joint: the label changed in the world (software-side) and the agent
+    lacks a recovery strategy beyond literal-name matching (agent-side).
   # Candidate failure: not yet catalogued in failure-assessment.md.
   cause: joint
   stage: prediction
   examples:
-    - scenario_id: F-MOB-MM-IDF-001-a
+    - scenario_id: F-MOB-TO-IDF-001-a
       source: benchmark
       app: com.android.settings, com.twitter.android
       task: Check the settings for the Twitter app
       notes: >
         AITW aitw-mobile-0068. Agent searched "twitter", then "x" (the
-        rebranded name), found nothing it could match, and kept scrolling
-        before failing. The vision-only path degenerated into scrolling up
-        and down indefinitely (an agent-side loop, recorded here as context
-        rather than as a separate software-side failure).
-    - scenario_id: F-MOB-MM-IDF-001-b
+        rebranded name), matched nothing, and kept scrolling before failing.
+    - scenario_id: F-MOB-TO-IDF-001-b
       source: benchmark
       app: com.android.vending, com.pandora.android
       task: Install the Pandora app
       notes: >
         AITW aitw-mobile-0042. Text-only path tried "Pandora", then
         "Pandora Music", then the "com.pandora..." package id, none of
-        which resolved to an installable entry. The vision-only path
-        clicked the wrong element (grounding issue — to be double-checked).
+        which resolved to an installable entry.
+
+- id: F-MOB-VO-IDF-002
+  platform: mobile
+  agent_type: vision-only
+  category: identifiability
+  failure: rebranded_icon_not_recognized_visually
+  description: >
+    A vision-only agent must locate an app/entity by appearance, but the
+    icon or wordmark has been rebranded (e.g. Twitter -> X) and no longer
+    matches the name in the task. Unable to confirm a visual match, the
+    agent searches alternate terms or scrolls without converging. Mirror of
+    F-MOB-TO-IDF-001 for the vision path; cause leans joint, with an
+    agent-side loop component (unbounded scrolling) recorded as context.
+  # Candidate failure: not yet catalogued in failure-assessment.md.
+  cause: joint
+  stage: prediction
+  examples:
+    - scenario_id: F-MOB-VO-IDF-002-a
+      source: benchmark
+      app: com.android.settings, com.twitter.android
+      task: Check the settings for the Twitter app
+      notes: >
+        AITW aitw-mobile-0068. Vision-only path could not match the
+        rebranded X app to "Twitter" and degenerated into scrolling up and
+        down indefinitely (agent-side loop on top of the rename mismatch).
+    - scenario_id: F-MOB-VO-IDF-002-b
+      source: benchmark
+      app: com.android.vending, com.pandora.android
+      task: Install the Pandora app
+      notes: >
+        AITW aitw-mobile-0042. Vision-only path clicked the wrong element
+        (grounding miss — to be double-checked).

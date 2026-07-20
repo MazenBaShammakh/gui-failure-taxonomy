@@ -4,6 +4,6 @@ __pycache__/
 .env
 task_failure_assignments.md
 EXECUTIVE_SUMMARY.md
-specs/
+# specs/
 .claude/
 benchmark/

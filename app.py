@@ -1,13 +1,27 @@
 #!/usr/bin/env python3
-"""Streamlit browser for the GUI Agent Failure Taxonomy (v2)."""
+"""Streamlit browser for the GUI Agent Failure Taxonomy.
 
+Data model (see specs/taxonomy-structure.md): failure Types are the spine,
+defined in taxonomy/<folder>/{mobile,web,cross-platform,desktop}.yaml. Real-world
+evidence lives separately in taxonomy/<folder>/runs.yaml as Tasks, each holding
+one or more Runs, and each Run tags 1+ Types via a `failures[]` list (a
+many-to-many Run<->Type link). A type's `observed` facet values are not
+stored -- they're derived here from whichever runs tag that type.
+
+`<folder>` defaults to `v2` but is switchable from the sidebar -- any
+subdirectory of taxonomy/ containing a runs.yaml is auto-detected as a
+taxonomy folder (e.g. a fresh/empty `v3` for a new corpus).
+"""
+
+from collections import defaultdict
 from pathlib import Path
 
 import streamlit as st
 import yaml
 
 ROOT = Path(__file__).parent
-TAXONOMY_V2_DIR = ROOT / "taxonomy" / "v2"
+TAXONOMY_ROOT = ROOT / "taxonomy"
+DEFAULT_TAXONOMY_FOLDER = "v2"
 
 CATEGORY_LABELS = {
     "perceptibility": "Perceptibility",
@@ -55,21 +69,37 @@ FILE_LABELS = {
     "desktop": "desktop",
 }
 
+RUNS_FILE = "runs.yaml"
 
-def _yaml_fingerprint() -> tuple[tuple[str, int], ...]:
-    """Mtime of every taxonomy YAML file, used as a cache-busting key so
-    load_types() reloads whenever a file changes on disk (rather than only
-    when app.py itself changes)."""
+
+def discover_taxonomy_folders() -> list[str]:
+    """Subdirectories of taxonomy/ that look like a taxonomy folder (contain
+    a runs.yaml) -- e.g. v2, and a fresh v3 you've started for a new corpus."""
+    if not TAXONOMY_ROOT.is_dir():
+        return [DEFAULT_TAXONOMY_FOLDER]
+    folders = sorted(
+        p.name for p in TAXONOMY_ROOT.iterdir()
+        if p.is_dir() and (p / RUNS_FILE).exists()
+    )
+    return folders or [DEFAULT_TAXONOMY_FOLDER]
+
+
+def _yaml_fingerprint(taxonomy_dir: Path) -> tuple[tuple[str, int], ...]:
+    """Mtime of every taxonomy YAML file in the given folder, used as a
+    cache-busting key so load_types()/load_tasks() reload whenever a file
+    changes on disk (rather than only when app.py itself changes)."""
     return tuple(
         (path.name, path.stat().st_mtime_ns)
-        for path in sorted(TAXONOMY_V2_DIR.glob("*.yaml"))
+        for path in sorted(taxonomy_dir.glob("*.yaml"))
     )
 
 
 @st.cache_data
-def load_types(_fingerprint: tuple[tuple[str, int], ...]) -> list[dict]:
+def load_types(taxonomy_dir: Path, _fingerprint: tuple[tuple[str, int], ...]) -> list[dict]:
     types = []
-    for path in sorted(TAXONOMY_V2_DIR.glob("*.yaml")):
+    for path in sorted(taxonomy_dir.glob("*.yaml")):
+        if path.name == RUNS_FILE:
+            continue
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
         if not data:
             continue
@@ -77,15 +107,37 @@ def load_types(_fingerprint: tuple[tuple[str, int], ...]) -> list[dict]:
         for t in data:
             t = dict(t)
             t["_source_file"] = source_file
-            t.setdefault("observations", [])
             types.append(t)
     return types
 
 
-def facet_values(t: dict, facet: str) -> tuple[list[str], list[str]]:
-    """Return (observed, expected) value lists for a type-level facet."""
-    f = t.get("facets", {}).get(facet, {}) or {}
-    return list(f.get("observed") or []), list(f.get("expected") or [])
+@st.cache_data
+def load_tasks(taxonomy_dir: Path, _fingerprint: tuple[tuple[str, int], ...]) -> list[dict]:
+    path = taxonomy_dir / RUNS_FILE
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or []
+
+
+def build_type_index(tasks: list[dict]) -> dict[str, list[dict]]:
+    """type_id -> list of {"task", "run", "edge"} dicts, one per Run that
+    tags that type via its failures[] list. Order follows runs.yaml (Task
+    id, then Run id), so it's stable and matches how the old schema's
+    observations: list read top to bottom."""
+    index: dict[str, list[dict]] = defaultdict(list)
+    for task in tasks:
+        for run in task.get("runs", []) or []:
+            for edge in run.get("failures", []) or []:
+                index[edge["type"]].append({"task": task, "run": run, "edge": edge})
+    return index
+
+
+def facet_values(t: dict, index: dict[str, list[dict]], facet: str) -> tuple[list[str], list[str]]:
+    """Return (observed, expected) value lists for a type-level facet.
+    `observed` is derived from the runs tagging this type (never stored in
+    the yaml — see the module docstring); `expected` is still hand-authored."""
+    entries = index.get(t["id"], [])
+    observed = sorted({e["run"].get(facet) for e in entries if e["run"].get(facet)})
+    expected = list((t.get("facets", {}).get(facet, {}) or {}).get("expected") or [])
+    return observed, expected
 
 
 def facet_chips(observed: list[str], expected: list[str]) -> str:
@@ -94,9 +146,9 @@ def facet_chips(observed: list[str], expected: list[str]) -> str:
     return " ".join(chips) if chips else "—"
 
 
-def render_type(t: dict) -> None:
+def render_type(t: dict, index: dict[str, list[dict]], type_labels: dict[str, str]) -> None:
     category_label = CATEGORY_LABELS.get(t["category"], t["category"])
-    obs = t.get("observations", [])
+    entries = index.get(t["id"], [])
     remediation = t.get("remediation", {}) or {}
 
     left, right = st.columns([3, 1])
@@ -119,57 +171,118 @@ def render_type(t: dict) -> None:
         st.markdown("**Attributes**")
         st.markdown(f"File: `{t['_source_file']}`")
         st.markdown(f"Category: `{category_label}`")
-        st.markdown(f"Cause: {CAUSE_BADGE.get(cause, cause or '—')}")
-        st.markdown(f"Stage: {STAGE_BADGE.get(stage, stage or '—')}")
+        st.markdown(f"Cause: {CAUSE_BADGE.get(cause, cause or '—')} (dominant case)")
+        st.markdown(f"Stage: {STAGE_BADGE.get(stage, stage or '—')} (dominant case)")
         if t.get("assessment_ref"):
             st.markdown(f"Assessment ref: `{t['assessment_ref']}`")
 
-        rep_obs, rep_exp = facet_values(t, "representation")
-        plat_obs, plat_exp = facet_values(t, "platform")
+        rep_obs, rep_exp = facet_values(t, index, "representation")
+        plat_obs, plat_exp = facet_values(t, index, "platform")
         st.markdown("**Representation**")
         st.markdown(facet_chips(rep_obs, rep_exp))
         st.markdown("**Platform**")
         st.markdown(facet_chips(plat_obs, plat_exp))
 
-    if obs:
-        st.markdown(f"**Observations ({len(obs)})**")
-        for ob in obs:
+    if entries:
+        by_task: dict[str, dict] = {}
+        for entry in entries:
+            task_id = entry["task"]["id"]
+            by_task.setdefault(task_id, {"task": entry["task"], "items": []})["items"].append(entry)
+
+        n_tasks = len(by_task)
+        st.markdown(f"**Observations ({n_tasks})**")
+        for group in by_task.values():
+            task = group["task"]
+            runs_in_obs = group["items"]
             with st.container(border=True):
-                c1, c2 = st.columns([2, 1])
-                with c1:
-                    st.markdown(
-                        f"`{ob['id']}`" + ("  :gray[(unverified)]" if ob.get("verified") is False else ""))
-                    if ob.get("task"):
-                        st.markdown(f"*{ob['task']}*")
-                    if ob.get("notes"):
-                        st.caption(ob["notes"].strip())
-                with c2:
-                    st.markdown(f"App: **{ob.get('app', '—')}**")
-                    st.markdown(
-                        f"{ob.get('representation', '—')} · {ob.get('platform', '—')}"
-                    )
-                    st.markdown(OUTCOME_BADGE.get(
-                        ob.get("outcome"), ob.get("outcome", "—")))
-                    st.markdown(
-                        f"Source: {SOURCE_BADGE.get(ob.get('source'), ob.get('source', '—'))}")
-                    if ob.get("route"):
-                        st.markdown(f"Route: `{ob['route']}`")
+                st.markdown(f"`{task['id']}`  ·  App: **{task.get('app', '—')}**")
+                if task.get("task"):
+                    st.markdown(f"*{task['task']}*")
+                caption_bits = []
+                if task.get("task_id"):
+                    caption_bits.append(f"Task ID: `{task['task_id']}`")
+                if len(runs_in_obs) > 1:
+                    caption_bits.append(f"{len(runs_in_obs)} runs recorded")
+                if caption_bits:
+                    st.caption("  ·  ".join(caption_bits))
+
+                for entry in runs_in_obs:
+                    run, edge = entry["run"], entry["edge"]
+                    with st.container(border=True):
+                        c1, c2 = st.columns([2, 1])
+                        with c1:
+                            st.markdown(
+                                f"`{run['id']}`" + ("  :gray[(unverified)]" if run.get("verified") is False else ""))
+                            if run.get("notes"):
+                                st.caption(run["notes"].strip())
+                            other_types = [f for f in run.get("failures", []) if f["type"] != t["id"]]
+                            if other_types:
+                                others = ", ".join(
+                                    f"`{f['type']}` ({type_labels.get(f['type'], f['type'])})"
+                                    for f in other_types
+                                )
+                                st.caption(f"Same run also evidences: {others}")
+                        with c2:
+                            st.markdown(
+                                f"{run.get('representation', '—')} · {run.get('platform', '—')}"
+                            )
+                            st.markdown(OUTCOME_BADGE.get(
+                                run.get("outcome"), run.get("outcome", "—")))
+                            st.markdown(
+                                f"Source: {SOURCE_BADGE.get(run.get('source'), run.get('source', '—'))}")
+                            if run.get("route"):
+                                st.markdown(f"Route: `{run['route']}`")
+                            edge_cause, edge_stage = edge.get("cause"), edge.get("stage")
+                            if (edge_cause, edge_stage) != (cause, stage):
+                                st.caption(
+                                    f"This run: {CAUSE_BADGE.get(edge_cause, edge_cause or '—')} · "
+                                    f"{STAGE_BADGE.get(edge_stage, edge_stage or '—')}"
+                                )
     else:
-        st.info("No logged observations — predicted / expected only.")
+        st.info("No logged runs — predicted / expected only.")
 
 
 def main() -> None:
-    st.set_page_config(page_title="GUI Failure Taxonomy (v2)",
+    st.set_page_config(page_title="GUI Failure Taxonomy",
                        page_icon="🔍", layout="wide")
+
+    available_folders = discover_taxonomy_folders()
+    with st.sidebar:
+        qp_folder = st.query_params.get("folder")
+        if qp_folder in available_folders:
+            default_folder = qp_folder
+        elif DEFAULT_TAXONOMY_FOLDER in available_folders:
+            default_folder = DEFAULT_TAXONOMY_FOLDER
+        else:
+            default_folder = available_folders[0]
+        selected_folder = st.selectbox(
+            "Taxonomy folder", available_folders,
+            index=available_folders.index(default_folder),
+            help="Which taxonomy/<folder> to browse. Auto-detected: any "
+                 "subfolder of taxonomy/ containing a runs.yaml (e.g. a "
+                 "fresh, empty folder started for a new corpus).",
+        )
+        if selected_folder != DEFAULT_TAXONOMY_FOLDER:
+            st.query_params["folder"] = selected_folder
+        elif "folder" in st.query_params:
+            st.query_params.pop("folder", None)
+        st.divider()
+
+    taxonomy_dir = TAXONOMY_ROOT / selected_folder
 
     st.title("GUI Failure Taxonomy")
     st.caption(
-        "Browse the type/observation taxonomy in `taxonomy/v2/`. "
-        "Types are Category → Failure (spine); Representation, Platform, "
-        "Cause, and Stage are facets."
+        f"Browse the taxonomy in `taxonomy/{selected_folder}/`. Types "
+        "(Category → Failure) are the spine; real-world evidence is a Task "
+        "with one or more Runs in `runs.yaml`, and each Run tags one or "
+        "more Types."
     )
 
-    types = load_types(_yaml_fingerprint())
+    fingerprint = _yaml_fingerprint(taxonomy_dir)
+    types = load_types(taxonomy_dir, fingerprint)
+    tasks = load_tasks(taxonomy_dir, fingerprint)
+    index = build_type_index(tasks)
+    type_labels = {t["id"]: t["failure"] for t in types}
 
     with st.sidebar:
         st.header("Filters")
@@ -179,10 +292,10 @@ def main() -> None:
                             for t in types if t.get("facets", {}).get("cause")})
         all_stages = sorted({t.get("facets", {}).get("stage")
                             for t in types if t.get("facets", {}).get("stage")})
-        all_sources = sorted({ob.get("source") for t in types for ob in t.get(
-            "observations", []) if ob.get("source")})
-        all_outcomes = sorted({ob.get("outcome") for t in types for ob in t.get(
-            "observations", []) if ob.get("outcome")})
+        all_sources = sorted({run.get("source") for task in tasks
+                               for run in task.get("runs", []) if run.get("source")})
+        all_outcomes = sorted({run.get("outcome") for task in tasks
+                                for run in task.get("runs", []) if run.get("outcome")})
 
         sel_files = st.multiselect("File", all_files, default=all_files)
         sel_causes = st.multiselect("Cause", all_causes, default=all_causes)
@@ -194,14 +307,14 @@ def main() -> None:
         sel_plats = st.multiselect("Platform", PLATFORMS, default=PLATFORMS)
         observed_only = st.checkbox(
             "Observed only (exclude expected-only matches)", value=False,
-            help="When on, a type must have the selected representation/platform in its OBSERVED set, not just expected.",
+            help="When on, a type must have the selected representation/platform in its derived OBSERVED set, not just expected.",
         )
 
         st.divider()
         sel_sources = st.multiselect(
-            "Observation source", all_sources, default=all_sources)
+            "Run source", all_sources, default=all_sources)
         sel_outcomes = st.multiselect(
-            "Observation outcome", all_outcomes, default=all_outcomes)
+            "Run outcome", all_outcomes, default=all_outcomes)
 
         st.divider()
         search = st.text_input(
@@ -248,22 +361,22 @@ def main() -> None:
         if stage not in sel_stages:
             return False
 
-        rep_obs, rep_exp = facet_values(t, "representation")
+        rep_obs, rep_exp = facet_values(t, index, "representation")
         rep_pool = rep_obs if observed_only else set(rep_obs) | set(rep_exp)
         if not (set(rep_pool) & set(sel_reps)):
             return False
 
-        plat_obs, plat_exp = facet_values(t, "platform")
+        plat_obs, plat_exp = facet_values(t, index, "platform")
         plat_pool = plat_obs if observed_only else set(
             plat_obs) | set(plat_exp)
         if not (set(plat_pool) & set(sel_plats)):
             return False
 
-        obs = t.get("observations", [])
-        if obs:
-            if not any(ob.get("source") in sel_sources for ob in obs):
+        entries = index.get(t["id"], [])
+        if entries:
+            if not any(e["run"].get("source") in sel_sources for e in entries):
                 return False
-            if not any(ob.get("outcome") in sel_outcomes for ob in obs):
+            if not any(e["run"].get("outcome") in sel_outcomes for e in entries):
                 return False
 
         q = search.strip().lower()
@@ -280,12 +393,20 @@ def main() -> None:
     filtered = [t for t in types if type_matches(t)]
     filtered.sort(key=lambda t: (t["_source_file"], t["id"]))
 
+    def entries_for(t: dict) -> list[dict]:
+        return index.get(t["id"], [])
+
+    def observation_count(t: dict) -> int:
+        """Number of distinct Tasks evidencing this type. A Task with
+        multiple Runs (e.g. the classic VO-fails/MM-succeeds contrast) is
+        one observation, not one per run — an observation is derived from
+        the Task, not the Run."""
+        return len({e["task"]["id"] for e in entries_for(t)})
+
     m1, m2, m3, m4, m5 = st.columns(5)
     m1.metric("Types", len(filtered))
-    m2.metric("Observations", sum(len(t.get("observations", []))
-              for t in filtered))
-    m3.metric("With observations", sum(
-        1 for t in filtered if t.get("observations")))
+    m2.metric("Observations", sum(observation_count(t) for t in filtered))
+    m3.metric("With observations", sum(1 for t in filtered if entries_for(t)))
     m4.metric("Categories", len({t["category"] for t in filtered}))
     m5.metric("Files", len({t["_source_file"] for t in filtered}))
 
@@ -306,26 +427,27 @@ def main() -> None:
 
         category_label = CATEGORY_LABELS.get(category, category)
         n_types = len(group)
-        n_obs = sum(len(t.get("observations", [])) for t in group)
-        n_with_obs = sum(1 for t in group if t.get("observations"))
+        n_obs = sum(observation_count(t) for t in group)
+        n_with_evidence = sum(1 for t in group if entries_for(t))
 
         st.markdown(
-            f"## {category_label}  ·  {n_types} types  ·  {n_obs} obs.")
+            f"## {category_label}  ·  {n_types} types  ·  "
+            f"{n_obs} observation{'s' if n_obs != 1 else ''}")
         c1, c2, c3 = st.columns(3)
         c1.metric("Types", n_types)
         c2.metric("Observations", n_obs)
-        c3.metric("With observations", n_with_obs)
+        c3.metric("With observations", n_with_evidence)
         st.divider()
 
         for t in group:
-            n_obs_t = len(t.get("observations", []))
-            badge = f"({n_obs_t} obs.)" if n_obs_t else "(predicted only)"
+            n_obs_t = observation_count(t)
+            badge = f"({n_obs_t} observation{'s' if n_obs_t != 1 else ''})" if n_obs_t else "(predicted only)"
             label = (
                 f"{t['id']}  ·  {t['failure'].replace('_', ' ')}  ·  "
                 f"{t['_source_file']}  {badge}"
             )
             with st.expander(label, expanded=False):
-                render_type(t)
+                render_type(t, index, type_labels)
 
         st.divider()
 

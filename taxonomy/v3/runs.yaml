@@ -1,0 +1,33 @@
+# GUI Agent Failures — Tasks and Runs (v3, empty starting point)
+#
+# Empty by design — no Tasks/Runs recorded yet. See README.md ("Adding a
+# new observation") for the record shape, and specs/taxonomy-structure.md
+# for the normative schema (Task -> Run -> many-to-many failures[] link).
+#
+# Template (copy/paste below, uncomment, and fill in to add a new Task —
+# check first whether the (app, task) pair already exists; if so, append a
+# new Run under its existing `runs:` list instead of creating a new Task.
+# {NNN} is the next free sequential Task number, unrelated to category):
+#
+# - id: T-NNN
+#   task_id: null              # a benchmark/*.jsonl record id, or null (see README.md "task_id")
+#   app: App Name
+#   task: The task instruction text.
+#   runs:
+#     - id: T-NNN-a             # next unused letter for this task (-a, -b, -c, ...)
+#       representation: multimodal   # text-only | vision-only | multimodal
+#       platform: web                 # web | mobile | desktop
+#       source: live                  # controlled | live | benchmark | literature
+#       outcome: failed                # succeeded | failed
+#       notes: >
+#         What actually happened — evidence, trace pointer, screenshot ref.
+#       failures:
+#         - type: F-CAT-NN       # an existing failure type id
+#           cause: software-side  # software-side | agent-side | joint
+#           stage: prediction      # prediction | execution | unclear
+#         # - type: F-CAT-MM       # add a second entry here ONLY if this
+#         #   cause: software-side  # same run genuinely exhibits a second,
+#         #   stage: execution       # distinct failure mechanism (see
+#                                     # specs/taxonomy-structure.md §3.3)
+
+[]

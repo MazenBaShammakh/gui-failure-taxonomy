@@ -1,0 +1,35 @@
+# GUI Agent Failures — types genuinely observed on 2+ platforms (v3, empty starting point)
+#
+# Empty by design — no failure types defined yet. Membership rule (once
+# populated): a type lives here iff its observed Platform facet has ≥2
+# values — see taxonomy/v2/cross-platform.yaml's header for the full rule,
+# and specs/taxonomy-structure.md for the normative schema.
+#
+# Template (copy/paste below, uncomment, and fill in to add a new type —
+# pick {NNN} as the next free number for {CATEGORY} across ALL FOUR type
+# files, not just this one; see README.md "Common mistakes". Only put a
+# type here once it actually has runs on 2+ platforms — otherwise it
+# belongs in the single platform's file and graduates here later):
+#
+# - id: F-CAT-NN
+#   category: perceptibility   # perceptibility | identifiability | structural_consistency |
+#                               # interaction_affordance | navigation_discoverability |
+#                               # content_organization | state_feedback | temporal_dynamics |
+#                               # interaction_scope
+#   failure: Short Human-Readable Name
+#   description: >
+#     What the failure is and why it happens.
+#   assessment_ref: candidate   # or an Fx.y ref into failure-assessment.md
+#   facets:
+#     representation:
+#       expected: []            # subset of [text-only, vision-only, multimodal]
+#     platform:
+#       expected: []            # subset of [web, mobile, desktop]
+#     cause: software-side      # software-side | agent-side | joint
+#     stage: prediction         # prediction | execution | unclear
+#   remediation:
+#     fix: >
+#       The proposed software-/design-side change.
+#     helps: []                 # which representation(s) the fix unblocks
+
+[]

@@ -7,3 +7,5 @@ EXECUTIVE_SUMMARY.md
 specs/
 .claude/
 benchmark/
+# helper/
+.playwright-mcp/

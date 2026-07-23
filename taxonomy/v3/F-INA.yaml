@@ -1,18 +1,23 @@
-# GUI Agent Failures — Mobile Platform (v3, empty starting point)
+# GUI Agent Failures — Interaction Affordance (v3)
+#
+# One file per category: every type in this file has
+# `category: interaction_affordance` and an id of the form `F-INA-{NN}`. Which
+# platform(s) a type applies to is a facet (`facets.platform`), not a file —
+# that is the difference from v2, where files were mobile/web/desktop/
+# cross-platform and the category lived only inside each entry.
 #
 # Empty by design — no failure types defined yet. See README.md ("Adding a
 # new failure type") for the record shape, and specs/taxonomy-structure.md
 # for the normative schema.
 #
-# Template (copy/paste below, uncomment, and fill in to add a new type —
-# pick {NNN} as the next free number for {CATEGORY} across ALL FOUR type
-# files, not just this one; see README.md "Common mistakes"):
+# `{NN}` is the next free number in THIS file (ids are category-scoped, and
+# a category now lives in exactly one file, so a duplicate id is only
+# possible within this file).
 #
-# - id: F-CAT-NN
-#   category: perceptibility   # perceptibility | identifiability | structural_consistency |
-#                               # interaction_affordance | navigation_discoverability |
-#                               # content_organization | state_feedback | temporal_dynamics |
-#                               # interaction_scope
+# Template — copy/paste below, uncomment, and fill in:
+#
+# - id: F-INA-NN
+#   category: interaction_affordance
 #   failure: Short Human-Readable Name
 #   description: >
 #     What the failure is and why it happens.

@@ -1,0 +1,91 @@
+# GUI Agent Failures — Structural Consistency (v3)
+#
+# One file per category: every type in this file has
+# `category: structural_consistency` and an id of the form `F-STR-{NN}`. Which
+# platform(s) a type applies to is a facet (`facets.platform`), not a file —
+# that is the difference from v2, where files were mobile/web/desktop/
+# cross-platform and the category lived only inside each entry.
+#
+# SOURCE OF TRUTH: the Notion "Failure Taxonomy" database
+# (data source 8c07b803-cd9e-45da-a1bf-aeb809e1abbc), rows whose Category
+# relation points at "Structural Consistency" (Category ID F3). Transcribed
+# 2026-07-23. `failure`, `description`, `representation`, `platform`,
+# `cause` and `stage` below are that table's values, not local judgements:
+#
+#   Failure Name    -> failure          (verbatim)
+#   Description     -> description      (verbatim)
+#   Agent Type      -> facets.representation.expected  (lowercased)
+#   Platform        -> facets.platform.expected        (lowercased)
+#   Cause           -> facets.cause                    (lowercased)
+#   Stage           -> facets.stage                    (lowercased)
+#
+# NOT the complete category: Notion holds three further Structural
+# Consistency rows, all Status: Draft with no "Failure ID", no Platform and
+# no Agent Type assigned, so there is nothing to key them on yet —
+# "Visual Layout Overlaps DOM Order" (old id F3.2), "Popup Not Represented
+# in DOM Hierarchy" (F3.3) and "DOM-Visible but Visually Hidden Element"
+# (F3.4). They become F-STR-02..04 once numbered and faceted upstream.
+#
+# Notion columns not carried here: "Example Task(s)" and "Tasks" belong in
+# runs.yaml (§3.2); "Status"/"Source" are Notion workflow metadata (this
+# row is Status: "Added to Taxonomy (w/o obs)", Source: empty);
+# "Failure ID (old)" holds Notion-internal ids of the form
+# {Category ID}.{n} (F3.1 here); "Notes/Open Questions" is empty.
+#
+# `assessment_ref` is omitted: Notion carries no pointer into
+# specs/failure-assessment.md, and its "Failure ID (old)" column is a
+# different numbering that does not line up with that file's Fx.y refs.
+#
+# `remediation` is likewise NOT sourced from Notion — the Failure Taxonomy
+# database has no remediation property and the row pages carry only trace
+# ids and review notes. Left as TODO rather than invented.
+#
+# No runs reference this type yet, so every facet value is `expected`.
+# `observed` is never stored; it is derived from runs.yaml at read time
+# (specs/taxonomy-structure.md §2.1). Note this makes `expected` slightly
+# generous: Notion's "Agent Type" mixes predicted and already-observed
+# agent types, and the distinction is lost until the runs are migrated.
+#
+# `{NN}` is the next free number in THIS file (ids are category-scoped, and
+# a category now lives in exactly one file, so a duplicate id is only
+# possible within this file).
+#
+# Template — copy/paste below, uncomment, and fill in:
+#
+# - id: F-STR-NN
+#   category: structural_consistency
+#   failure: Short Human-Readable Name
+#   description: >
+#     What the failure is and why it happens.
+#   assessment_ref: candidate   # or an Fx.y ref into failure-assessment.md
+#   facets:
+#     representation:
+#       expected: []            # subset of [text-only, vision-only, multimodal]
+#     platform:
+#       expected: []            # subset of [web, mobile, desktop]
+#     cause: software-side      # software-side | agent-side | joint
+#     stage: prediction         # prediction | execution | unclear
+#   remediation:
+#     fix: >
+#       The proposed software-/design-side change.
+#     helps: []                 # which representation(s) the fix unblocks
+
+
+- id: F-STR-01
+  category: structural_consistency
+  failure: Recycled-View Stale Accessible Name
+  description: >
+    When a recycled row view is rebound to new data, its visible text updates
+    but its accessible name doesn't, so a text-only agent can't ground the
+    target by title.
+  facets:
+    representation:
+      expected: [text-only]
+    platform:
+      expected: [web, mobile]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []

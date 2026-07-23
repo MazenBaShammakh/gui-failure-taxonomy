@@ -9,13 +9,6 @@
 #     the type's values from Notion (which match the F-*.yaml type records
 #     exactly — checked at generation time).
 #
-# `source` sits on the TASK, not the Run — it describes the application the
-# attempt targeted, which cannot differ between runs of one task:
-#   localhost / com.mazenbashammakh -> controlled (our own instrumented
-#     build, whether or not the fault was injected for that run)
-#   any other gui-failure-suite target -> live (a real site, visited live)
-#   everything else -> benchmark (the benchmark app as shipped)
-#
 # Tagging every run of a task, including runs that SUCCEEDED, is deliberate
 # and follows v2: a run tags the failure it encountered, and `outcome`
 # records whether that representation was defeated by it. That contrast
@@ -51,12 +44,12 @@
   task_id: "gui-failure-suite-mobile-2763"
   app: "com.mazenbashammakh.mobile"
   task: "In the Banking app, open Card Application, fill in the form, and submit your application."
-  source: controlled
   runs:
     - id: T-001-a
       run_id: 2026-06-29_125439
       representation: text-only
       platform: mobile
+      source: benchmark
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -72,6 +65,7 @@
       run_id: 2026-06-29_125629
       representation: text-only
       platform: mobile
+      source: controlled
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -88,6 +82,7 @@
       run_id: 2026-06-29_130330
       representation: vision-only
       platform: mobile
+      source: controlled
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -104,12 +99,12 @@
   task_id: "gui-failure-suite-mobile-2764"
   app: "com.mazenbashammakh.mobile"
   task: "In the Photos app, open Photo Details and add the photo to your Favorites."
-  source: controlled
   runs:
     - id: T-002-a
       run_id: 2026-06-29_132644
       representation: text-only
       platform: mobile
+      source: benchmark
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -125,6 +120,7 @@
       run_id: 2026-06-29_132741
       representation: text-only
       platform: mobile
+      source: controlled
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -141,6 +137,7 @@
       run_id: 2026-06-29_133431
       representation: vision-only
       platform: mobile
+      source: controlled
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -156,6 +153,7 @@
       run_id: 2026-06-29_133515
       representation: vision-only
       platform: mobile
+      source: controlled
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -170,6 +168,7 @@
       run_id: 2026-06-29_133710
       representation: vision-only
       platform: mobile
+      source: controlled
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -186,12 +185,12 @@
   task_id: "gui-failure-suite-mobile-2765"
   app: "com.mazenbashammakh.mobile"
   task: "In the Maps app, open Current Location and center the map on your current location."
-  source: controlled
   runs:
     - id: T-003-a
       run_id: 2026-06-29_150703
       representation: text-only
       platform: mobile
+      source: benchmark
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -207,6 +206,7 @@
       run_id: 2026-06-29_150811
       representation: text-only
       platform: mobile
+      source: controlled
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -223,6 +223,7 @@
       run_id: 2026-06-29_151214
       representation: vision-only
       platform: mobile
+      source: controlled
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -239,12 +240,12 @@
   task_id: "gui-failure-suite-mobile-2768"
   app: "com.mazenbashammakh.mobile"
   task: "In the Banking app, open Quick Actions and tap \"Pay Bills\"."
-  source: controlled
   runs:
     - id: T-004-a
       run_id: 2026-06-30_181331
       representation: text-only
       platform: mobile
+      source: benchmark
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -260,6 +261,7 @@
       run_id: 2026-06-30_181416
       representation: text-only
       platform: mobile
+      source: controlled
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -275,6 +277,7 @@
       run_id: 2026-06-30_182254
       representation: vision-only
       platform: mobile
+      source: benchmark
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -290,6 +293,7 @@
       run_id: 2026-06-30_182412
       representation: vision-only
       platform: mobile
+      source: controlled
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -305,6 +309,7 @@
       run_id: 2026-06-30_182626
       representation: vision-only
       platform: mobile
+      source: controlled
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -321,12 +326,12 @@
   task_id: "mind2web-web-0980"
   app: "https://www.carmax.com"
   task: "search gas pickup truck in Fremont with 2010 and 2017 with less than 80000 mile"
-  source: benchmark
   runs:
     - id: T-005-a
       run_id: 2026-06-01_124012
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -344,6 +349,7 @@
       run_id: 2026-06-01_173627
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -362,12 +368,12 @@
   task_id: "gui-failure-suite-mobile-2766"
   app: "com.mazenbashammakh.mobile"
   task: "In the Tasks app, open All Tasks, scroll down, and mark \"Renew passport\" as done."
-  source: controlled
   runs:
     - id: T-006-a
       run_id: 2026-06-29_161527
       representation: text-only
       platform: mobile
+      source: benchmark
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -383,6 +389,7 @@
       run_id: 2026-06-29_161647
       representation: text-only
       platform: mobile
+      source: controlled
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -398,6 +405,7 @@
       run_id: 2026-06-29_163355
       representation: text-only
       platform: mobile
+      source: benchmark
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -413,6 +421,7 @@
       run_id: 2026-06-29_163454
       representation: text-only
       platform: mobile
+      source: controlled
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -429,6 +438,7 @@
       run_id: 2026-06-29_164303
       representation: vision-only
       platform: mobile
+      source: controlled
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -445,12 +455,12 @@
   task_id: "mind2web-web-1013"
   app: "https://www.tvguide.com"
   task: "Find more films from the director of Smile."
-  source: benchmark
   runs:
     - id: T-007-a
       run_id: 2026-06-02_150618
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -466,12 +476,12 @@
   task_id: "mind2web-web-1052"
   app: "https://www.kayak.com"
   task: "Check travel restrictions when traveling from US to Cambodia."
-  source: benchmark
   runs:
     - id: T-008-a
       run_id: 2026-06-03_142541
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -488,12 +498,12 @@
   task_id: "mind2web-web-1007"
   app: "https://www.mbta.com"
   task: "View the latest job openings in safety with a salary above 100k per annum, check the details, and apply."
-  source: benchmark
   runs:
     - id: T-009-a
       run_id: 2026-06-02_145655
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -508,6 +518,7 @@
       run_id: 2026-06-02_145928
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -523,12 +534,12 @@
   task_id: "mind2web-web-0981"
   app: "https://www.delta.com"
   task: "find my trip with confirmation number SFTBAO including first and last name Joe Lukeman"
-  source: benchmark
   runs:
     - id: T-010-a
       run_id: 2026-06-01_222239
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -541,12 +552,12 @@
   task_id: "mind2web-web-1030"
   app: "https://www.ign.com"
   task: "Find an editor's choice review with a score of 10 in the boardgame category."
-  source: benchmark
   runs:
     - id: T-011-a
       run_id: 2026-06-02_162358
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -561,6 +572,7 @@
       run_id: 2026-06-02_162521
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -575,6 +587,7 @@
       run_id: 2026-06-02_162644
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -591,12 +604,12 @@
   task_id: "mind2web-web-1001"
   app: "https://www.eventbrite.com"
   task: "Search for a paid fishing class event on chicago"
-  source: benchmark
   runs:
     - id: T-012-a
       run_id: 2026-06-02_143843
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -611,6 +624,7 @@
       run_id: 2026-06-02_144147
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -626,12 +640,12 @@
   task_id: "mind2web-web-0991"
   app: "https://www.underarmour.com"
   task: "Search the cheapest Curry brand unisex athletic shoes with the number 5.5, add to cart and checkout."
-  source: benchmark
   runs:
     - id: T-013-a
       run_id: 2026-06-02_130201
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -647,12 +661,12 @@
   task_id: "mind2web-web-1037"
   app: "https://www.rottentomatoes.com"
   task: "View all of the Most Popular TV on RT."
-  source: benchmark
   runs:
     - id: T-014-a
       run_id: 2026-06-02_183851
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -669,12 +683,12 @@
   task_id: "mind2web-web-1019"
   app: "https://www.uniqlo.com"
   task: "Show me the list of Men's Blazers, Black, Size M."
-  source: benchmark
   runs:
     - id: T-015-a
       run_id: 2026-06-02_155828
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -691,12 +705,12 @@
   task_id: "mind2web-web-1034"
   app: "https://www.discogs.com"
   task: "Open the page with a overview about the submission of releases."
-  source: benchmark
   runs:
     - id: T-016-a
       run_id: 2026-06-02_180652
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -711,6 +725,7 @@
       run_id: 2026-06-02_180943
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -726,12 +741,12 @@
   task_id: "mind2web-web-0982"
   app: "https://www.delta.com"
   task: "Find the status of March 25 flights from New York airports to Columbus in Ohio."
-  source: benchmark
   runs:
     - id: T-017-a
       run_id: 2026-06-01_222239
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -744,12 +759,12 @@
   task_id: "mind2web-web-1039"
   app: "https://www.qatarairways.com"
   task: "Check travel requirements for trips between Tokyo and Guangzhou."
-  source: benchmark
   runs:
     - id: T-018-a
       run_id: 2026-06-02_185451
       representation: multimodal
       platform: web
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -763,12 +778,12 @@
   task_id: "gui-failure-suite-mobile-2767"
   app: "com.mazenbashammakh.mobile"
   task: "In the Shop app, open Choose Colour and select the green colour."
-  source: controlled
   runs:
     - id: T-019-a
       run_id: 2026-06-30_180303
       representation: text-only
       platform: mobile
+      source: benchmark
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -784,6 +799,7 @@
       run_id: 2026-06-30_180353
       representation: text-only
       platform: mobile
+      source: controlled
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -799,6 +815,7 @@
       run_id: 2026-06-30_180830
       representation: vision-only
       platform: mobile
+      source: benchmark
       outcome: succeeded
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -814,6 +831,7 @@
       run_id: 2026-06-30_181008
       representation: vision-only
       platform: mobile
+      source: controlled
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -831,12 +849,12 @@
   task_id: "aitw-mobile-0042"
   app: "com.android.vending, com.pandora.android"
   task: "Install the Pandora app"
-  source: benchmark
   runs:
     - id: T-020-a
       run_id: 2026-06-09_143521
       representation: text-only
       platform: mobile
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -851,6 +869,7 @@
       run_id: 2026-06-09_153424
       representation: vision-only
       platform: mobile
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -867,12 +886,12 @@
   task_id: "aitw-mobile-0068"
   app: "com.android.settings, com.twitter.android"
   task: "Check the settings for the Twitter app"
-  source: benchmark
   runs:
     - id: T-021-a
       run_id: 2026-06-09_143521
       representation: text-only
       platform: mobile
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI
@@ -887,6 +906,7 @@
       run_id: 2026-06-09_153424
       representation: vision-only
       platform: mobile
+      source: benchmark
       outcome: failed
       notes: >
         TODO describe the mechanism — what the agent did and why the GUI

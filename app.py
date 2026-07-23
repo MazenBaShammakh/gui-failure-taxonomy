@@ -2,7 +2,10 @@
 """Streamlit browser for the GUI Agent Failure Taxonomy.
 
 Data model (see specs/taxonomy-structure.md): failure Types are the spine,
-defined in taxonomy/<folder>/{mobile,web,cross-platform,desktop}.yaml. Real-world
+defined in every *.yaml of taxonomy/<folder>/ except runs.yaml. How those
+files are split is a per-folder convention the loader doesn't care about:
+v2 splits by platform ({mobile,web,cross-platform,desktop}.yaml), v3 splits
+by category (F-PRC.yaml, F-IDT.yaml, … one per category code). Real-world
 evidence lives separately in taxonomy/<folder>/runs.yaml as Tasks, each holding
 one or more Runs, and each Run tags 1+ Types via a `failures[]` list (a
 many-to-many Run<->Type link). A type's `observed` facet values are not
@@ -62,12 +65,21 @@ OUTCOME_BADGE = {
 REPRESENTATIONS = ["text-only", "vision-only", "multimodal"]
 PLATFORMS = ["web", "mobile", "desktop"]
 
-FILE_LABELS = {
-    "mobile": "mobile",
-    "web": "web",
-    "cross-platform": "cross-platform",
-    "desktop": "desktop",
+CATEGORY_CODES = {
+    "perceptibility": "PRC",
+    "identifiability": "IDT",
+    "structural_consistency": "STR",
+    "interaction_affordance": "INA",
+    "navigation_discoverability": "NAV",
+    "content_organization": "CNT",
+    "state_feedback": "FBK",
+    "temporal_dynamics": "TMP",
+    "interaction_scope": "INS",
 }
+
+# v3 convention: one file per category, named for that category's code.
+# Empty for a v2-style folder, where file stems are platforms instead.
+CODE_TO_CATEGORY = {f"F-{code}": cat for cat, code in CATEGORY_CODES.items()}
 
 RUNS_FILE = "runs.yaml"
 
@@ -87,7 +99,12 @@ def discover_taxonomy_folders() -> list[str]:
 def _yaml_fingerprint(taxonomy_dir: Path) -> tuple[tuple[str, int], ...]:
     """Mtime of every taxonomy YAML file in the given folder, used as a
     cache-busting key so load_types()/load_tasks() reload whenever a file
-    changes on disk (rather than only when app.py itself changes)."""
+    changes on disk (rather than only when app.py itself changes).
+
+    Must be passed to those functions under a name that does NOT start with
+    an underscore -- st.cache_data drops leading-underscore parameters from
+    the cache key (its opt-out for unhashable args), which silently defeats
+    the whole point of this fingerprint."""
     return tuple(
         (path.name, path.stat().st_mtime_ns)
         for path in sorted(taxonomy_dir.glob("*.yaml"))
@@ -95,7 +112,7 @@ def _yaml_fingerprint(taxonomy_dir: Path) -> tuple[tuple[str, int], ...]:
 
 
 @st.cache_data
-def load_types(taxonomy_dir: Path, _fingerprint: tuple[tuple[str, int], ...]) -> list[dict]:
+def load_types(taxonomy_dir: Path, fingerprint: tuple[tuple[str, int], ...]) -> list[dict]:
     types = []
     for path in sorted(taxonomy_dir.glob("*.yaml")):
         if path.name == RUNS_FILE:
@@ -103,18 +120,42 @@ def load_types(taxonomy_dir: Path, _fingerprint: tuple[tuple[str, int], ...]) ->
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
         if not data:
             continue
-        source_file = FILE_LABELS.get(path.stem, path.stem)
         for t in data:
             t = dict(t)
-            t["_source_file"] = source_file
+            t["_source_file"] = path.stem
             types.append(t)
     return types
 
 
+def category_filename_mismatches(types: list[dict]) -> list[str]:
+    """Types sitting in a category-named file (v3) whose `category` field
+    disagrees with the filename -- e.g. an entry pasted into F-PRC.yaml but
+    left as `category: state_feedback`. `category` is kept in every entry so
+    records stay self-contained, which means it can drift; this catches that.
+    Returns [] for a v2-style folder, where filenames carry no category."""
+    problems = []
+    for t in types:
+        expected = CODE_TO_CATEGORY.get(t["_source_file"])
+        if expected and t.get("category") != expected:
+            problems.append(
+                f"`{t.get('id', '?')}` in `{t['_source_file']}.yaml` has "
+                f"`category: {t.get('category')}`, expected `{expected}`"
+            )
+    return problems
+
+
 @st.cache_data
-def load_tasks(taxonomy_dir: Path, _fingerprint: tuple[tuple[str, int], ...]) -> list[dict]:
+def load_tasks(taxonomy_dir: Path, fingerprint: tuple[tuple[str, int], ...]) -> list[dict]:
     path = taxonomy_dir / RUNS_FILE
     return yaml.safe_load(path.read_text(encoding="utf-8")) or []
+
+
+def source_of(task: dict, run: dict) -> str | None:
+    """`source` describes the application an attempt targeted, so it belongs
+    to the Task -- it cannot differ between runs of the same task. v3 stores
+    it there. v2 stored it on each Run, so fall back to that; both folders
+    have to keep working."""
+    return task.get("source") or run.get("source")
 
 
 def build_type_index(tasks: list[dict]) -> dict[str, list[dict]]:
@@ -201,6 +242,11 @@ def render_type(t: dict, index: dict[str, list[dict]], type_labels: dict[str, st
                 caption_bits = []
                 if task.get("task_id"):
                     caption_bits.append(f"Task ID: `{task['task_id']}`")
+                if task.get("source"):
+                    # v3: source lives on the Task, so show it once here
+                    # rather than repeating it on every run card below.
+                    caption_bits.append(
+                        f"Source: {SOURCE_BADGE.get(task['source'], task['source'])}")
                 if len(runs_in_obs) > 1:
                     caption_bits.append(f"{len(runs_in_obs)} runs recorded")
                 if caption_bits:
@@ -211,8 +257,17 @@ def render_type(t: dict, index: dict[str, list[dict]], type_labels: dict[str, st
                     with st.container(border=True):
                         c1, c2 = st.columns([2, 1])
                         with c1:
+                            # run_id is the harness's own id for the execution
+                            # (v3 onward, absent in v2) -- the pointer back to
+                            # the raw trace. Rendered as-is on purpose: one
+                            # written with a `T`/space separator instead of `_`
+                            # parses as a datetime, and showing YAML's
+                            # reformatting of it is the tell that it's wrong.
+                            harness_id = run.get("run_id")
                             st.markdown(
-                                f"`{run['id']}`" + ("  :gray[(unverified)]" if run.get("verified") is False else ""))
+                                f"`{run['id']}`"
+                                + (f"  :gray[{harness_id}]" if harness_id else "")
+                                + ("  :gray[(unverified)]" if run.get("verified") is False else ""))
                             if run.get("notes"):
                                 st.caption(run["notes"].strip())
                             other_types = [f for f in run.get("failures", []) if f["type"] != t["id"]]
@@ -228,8 +283,10 @@ def render_type(t: dict, index: dict[str, list[dict]], type_labels: dict[str, st
                             )
                             st.markdown(OUTCOME_BADGE.get(
                                 run.get("outcome"), run.get("outcome", "—")))
-                            st.markdown(
-                                f"Source: {SOURCE_BADGE.get(run.get('source'), run.get('source', '—'))}")
+                            if run.get("source") and not task.get("source"):
+                                # v2 only -- v3 shows it on the task caption.
+                                st.markdown(
+                                    f"Source: {SOURCE_BADGE.get(run['source'], run['source'])}")
                             if run.get("route"):
                                 st.markdown(f"Route: `{run['route']}`")
                             edge_cause, edge_stage = edge.get("cause"), edge.get("stage")
@@ -284,20 +341,34 @@ def main() -> None:
     index = build_type_index(tasks)
     type_labels = {t["id"]: t["failure"] for t in types}
 
+    mismatches = category_filename_mismatches(types)
+    if mismatches:
+        st.warning("Category/file mismatch:\n\n" +
+                   "\n".join(f"- {m}" for m in mismatches))
+
     with st.sidebar:
         st.header("Filters")
 
-        all_files = sorted({t["_source_file"] for t in types})
+        present_cats = {t["category"] for t in types if t.get("category")}
+        all_cats = [c for c in CATEGORY_LABELS if c in present_cats]
+        all_cats += sorted(present_cats - set(all_cats))
         all_causes = sorted({t.get("facets", {}).get("cause")
                             for t in types if t.get("facets", {}).get("cause")})
         all_stages = sorted({t.get("facets", {}).get("stage")
                             for t in types if t.get("facets", {}).get("stage")})
-        all_sources = sorted({run.get("source") for task in tasks
-                               for run in task.get("runs", []) if run.get("source")})
+        all_sources = sorted({s for task in tasks
+                              for run in task.get("runs", []) or []
+                              if (s := source_of(task, run))})
         all_outcomes = sorted({run.get("outcome") for task in tasks
                                 for run in task.get("runs", []) if run.get("outcome")})
 
-        sel_files = st.multiselect("File", all_files, default=all_files)
+        sel_cats = st.multiselect(
+            "Category", all_cats, default=all_cats,
+            format_func=lambda c: CATEGORY_LABELS.get(c, c),
+            help="Filters on each type's `category` field. In a v3 folder "
+                 "that is 1:1 with its source file (F-PRC.yaml, …); in v2, "
+                 "files are platforms and cut across categories.",
+        )
         sel_causes = st.multiselect("Cause", all_causes, default=all_causes)
         sel_stages = st.multiselect("Stage", all_stages, default=all_stages)
 
@@ -352,7 +423,7 @@ def main() -> None:
             st.query_params.pop("interval", None)
 
     def type_matches(t: dict) -> bool:
-        if t["_source_file"] not in sel_files:
+        if t.get("category") not in sel_cats:
             return False
         cause = t.get("facets", {}).get("cause")
         if cause not in sel_causes:
@@ -374,7 +445,7 @@ def main() -> None:
 
         entries = index.get(t["id"], [])
         if entries:
-            if not any(e["run"].get("source") in sel_sources for e in entries):
+            if not any(source_of(e["task"], e["run"]) in sel_sources for e in entries):
                 return False
             if not any(e["run"].get("outcome") in sel_outcomes for e in entries):
                 return False
@@ -403,12 +474,11 @@ def main() -> None:
         the Task, not the Run."""
         return len({e["task"]["id"] for e in entries_for(t)})
 
-    m1, m2, m3, m4, m5 = st.columns(5)
+    m1, m2, m3, m4 = st.columns(4)
     m1.metric("Types", len(filtered))
     m2.metric("Observations", sum(observation_count(t) for t in filtered))
     m3.metric("With observations", sum(1 for t in filtered if entries_for(t)))
     m4.metric("Categories", len({t["category"] for t in filtered}))
-    m5.metric("Files", len({t["_source_file"] for t in filtered}))
 
     st.divider()
 
@@ -442,9 +512,14 @@ def main() -> None:
         for t in group:
             n_obs_t = observation_count(t)
             badge = f"({n_obs_t} observation{'s' if n_obs_t != 1 else ''})" if n_obs_t else "(predicted only)"
+            # In a category-per-file folder the source file is just the
+            # section header again, so only show it when it says something
+            # the header doesn't (v2: the platform the type lives under).
+            origin = ("" if t["_source_file"] in CODE_TO_CATEGORY
+                      else f"{t['_source_file']}  ")
             label = (
                 f"{t['id']}  ·  {t['failure'].replace('_', ' ')}  ·  "
-                f"{t['_source_file']}  {badge}"
+                f"{origin}{badge}"
             )
             with st.expander(label, expanded=False):
                 render_type(t, index, type_labels)

@@ -1,0 +1,148 @@
+# GUI Agent Failures — Temporal Dynamics (v3)
+#
+# One file per category: every type in this file has
+# `category: temporal_dynamics` and an id of the form `F-TMP-{NN}`. Which
+# platform(s) a type applies to is a facet (`facets.platform`), not a file —
+# that is the difference from v2, where files were mobile/web/desktop/
+# cross-platform and the category lived only inside each entry.
+#
+# SOURCE OF TRUTH: the Notion "Failure Taxonomy" database
+# (data source 8c07b803-cd9e-45da-a1bf-aeb809e1abbc), rows whose Category
+# relation points at "Temporal Dynamics" (Category ID F8). Transcribed
+# 2026-07-23; these four are the category's complete set in Notion.
+# `failure`, `description`, `representation`, `platform`, `cause` and
+# `stage` below are that table's values, not local judgements:
+#
+#   Failure Name    -> failure          (verbatim)
+#   Description     -> description      (verbatim)
+#   Agent Type      -> facets.representation.expected  (lowercased)
+#   Platform        -> facets.platform.expected        (lowercased)
+#   Cause           -> facets.cause                    (lowercased)
+#   Stage           -> facets.stage                    (lowercased)
+#
+# This category carries the taxonomy's widest spread of `cause`: F-TMP-01
+# and F-TMP-03 are software-side, F-TMP-02 is joint (the only joint type
+# transcribed so far), and F-TMP-04 is agent-side. Notion notes on
+# F-TMP-04 that its stale-knowledge mechanism raises the same open
+# question as F-IDT-04 — whether an agent-side type belongs in a
+# developer-facing taxonomy at all, given RQ4 reads remediation by cause.
+#
+# Notion columns not carried here: "Example Task(s)" and "Tasks" belong in
+# runs.yaml (§3.2); "Status"/"Source" are Notion workflow metadata (all
+# four rows are Status: "Added to Taxonomy (w/o obs)", Source: empty);
+# "Failure ID (old)" holds Notion-internal ids of the form
+# {Category ID}.{n} (F8.1..F8.4 here); "Notes/Open Questions" carries the
+# F-TMP-04 note described above and is empty on the other three.
+#
+# `assessment_ref` is omitted: Notion carries no pointer into
+# specs/failure-assessment.md, and its "Failure ID (old)" column is a
+# different numbering that does not line up with that file's Fx.y refs.
+#
+# `remediation` is likewise NOT sourced from Notion — the Failure Taxonomy
+# database has no remediation property and the row pages carry only trace
+# ids and review notes. Left as TODO rather than invented.
+#
+# No runs reference these types yet, so every facet value is `expected`.
+# `observed` is never stored; it is derived from runs.yaml at read time
+# (specs/taxonomy-structure.md §2.1). Note this makes `expected` slightly
+# generous: Notion's "Agent Type" mixes predicted and already-observed
+# agent types, and the distinction is lost until the runs are migrated.
+#
+# `{NN}` is the next free number in THIS file (ids are category-scoped, and
+# a category now lives in exactly one file, so a duplicate id is only
+# possible within this file).
+#
+# Template — copy/paste below, uncomment, and fill in:
+#
+# - id: F-TMP-NN
+#   category: temporal_dynamics
+#   failure: Short Human-Readable Name
+#   description: >
+#     What the failure is and why it happens.
+#   assessment_ref: candidate   # or an Fx.y ref into failure-assessment.md
+#   facets:
+#     representation:
+#       expected: []            # subset of [text-only, vision-only, multimodal]
+#     platform:
+#       expected: []            # subset of [web, mobile, desktop]
+#     cause: software-side      # software-side | agent-side | joint
+#     stage: prediction         # prediction | execution | unclear
+#   remediation:
+#     fix: >
+#       The proposed software-/design-side change.
+#     helps: []                 # which representation(s) the fix unblocks
+
+
+- id: F-TMP-01
+  category: temporal_dynamics
+  failure: Dynamically Rendered Content Outside Viewport
+  description: >
+    Content rendered later or outside the current viewport at snapshot time
+    (carousels, lazy loads) is invisible to the agent's reasoning step even
+    though it's present in the live page.
+  facets:
+    representation:
+      expected: [vision-only]
+    platform:
+      expected: [web]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+- id: F-TMP-02
+  category: temporal_dynamics
+  failure: Slow Page Load Exceeds Agent Timing Budget
+  description: >
+    The page takes long enough to load that the agent acts before the UI is
+    ready, stalls waiting, or the run crashes outright.
+  facets:
+    representation:
+      expected: [text-only, vision-only]
+    platform:
+      expected: [web]
+    cause: joint
+    stage: execution
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+- id: F-TMP-03
+  category: temporal_dynamics
+  failure: Popup Appears After Snapshot
+  description: >
+    A popup, banner, toast, or notification is injected after the agent's
+    DOM/visual snapshot is captured, so the agent acts on stale state and the
+    action lands on the wrong target.
+  facets:
+    representation:
+      expected: [text-only, vision-only]
+    platform:
+      expected: [web]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+- id: F-TMP-04
+  category: temporal_dynamics
+  failure: Stale Route to Removed Page
+  description: >
+    The agent forces navigation to a URL/route that no longer exists in the
+    current version of the site, drawn from outdated model knowledge.
+  facets:
+    representation:
+      expected: [text-only, vision-only]
+    platform:
+      expected: [web]
+    cause: agent-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []

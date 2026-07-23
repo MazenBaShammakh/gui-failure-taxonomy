@@ -286,9 +286,9 @@ def render_type(t: dict, index: dict[str, list[dict]], type_labels: dict[str, st
         st.markdown(f"File: `{t['_source_file']}`")
         st.markdown(f"Category: `{category_label}`")
         st.markdown(
-            f"Cause: {CAUSE_BADGE.get(cause, cause or '—')} (dominant case)")
+            f"Cause: {CAUSE_BADGE.get(cause, cause or '—')}")
         st.markdown(
-            f"Stage: {STAGE_BADGE.get(stage, stage or '—')} (dominant case)")
+            f"Stage: {STAGE_BADGE.get(stage, stage or '—')}")
         if t.get("assessment_ref"):
             st.markdown(f"Assessment ref: `{t['assessment_ref']}`")
 

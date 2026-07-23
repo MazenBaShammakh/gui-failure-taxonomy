@@ -17,7 +17,9 @@ add X" guide. For the normative schema definition, see
 | `taxonomy/v2/overview.md` | Generated summary (tables + mermaid diagrams). **Do not hand-edit** — see "After editing" below. |
 | `specs/taxonomy-structure.md` | Normative record shapes, ID scheme, facets. |
 | `specs/v2-repository-guide.md` | Broader thesis-facing repo walkthrough. |
-| `app.py` | Streamlit browser for the taxonomy (`streamlit run app.py`). |
+| `app.py` | Streamlit browser for the taxonomy (`streamlit run app.py`). Defaults to the `v3` folder. |
+| `ui_prototypes/` | Alternative layouts for the browser, each standalone and runnable on its own. Includes `option_original_cards.py`, the archived pre-flat-list `app.py`. |
+| `backups/` | Point-in-time copies of generated files. Deliberately outside `taxonomy/`, since anything there containing a `runs.yaml` is picked up as a selectable taxonomy folder. |
 | `helper/` | Scripts: verification, `overview.md` generation, and the one-off Task/Run migration tooling. |
 | `benchmark/*.jsonl` | External task corpus (Mind2Web, AITW, LlamaTouch, OSWorld, and the team's own `gui-failure-suite`). |
 

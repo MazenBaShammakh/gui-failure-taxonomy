@@ -6,14 +6,21 @@ defined in every *.yaml of taxonomy/<folder>/ except runs.yaml. How those
 files are split is a per-folder convention the loader doesn't care about:
 v2 splits by platform ({mobile,web,cross-platform,desktop}.yaml), v3 splits
 by category (F-PRC.yaml, F-IDT.yaml, … one per category code). Real-world
-evidence lives separately in taxonomy/<folder>/runs.yaml as Tasks, each holding
-one or more Runs, and each Run tags 1+ Types via a `failures[]` list (a
-many-to-many Run<->Type link). A type's `observed` facet values are not
-stored -- they're derived here from whichever runs tag that type.
+evidence lives separately in taxonomy/<folder>/runs.yaml as Tasks, each
+holding one or more Runs, and each Run tags 1+ Types via a `failures[]`
+list (a many-to-many Run<->Type link). A type's `observed` facet values are
+not stored -- they're derived here from whichever runs tag that type.
 
-`<folder>` defaults to `v2` but is switchable from the sidebar -- any
-subdirectory of taxonomy/ containing a runs.yaml is auto-detected as a
-taxonomy folder (e.g. a fresh/empty `v3` for a new corpus).
+`<folder>` defaults to `v3` but is switchable from the sidebar -- any
+subdirectory of taxonomy/ containing a runs.yaml is auto-detected.
+
+Evidence is rendered as plain indented text: a bold task line followed by
+indented "↳" run lines, separated by a thin divider. This began as
+`ui_prototypes/option_c_flat_list.py` and was promoted to the main app; the
+previous nested-card layout is kept for reference at
+`ui_prototypes/option_original_cards.py`.
+
+Run: streamlit run app.py
 """
 
 from collections import defaultdict
@@ -22,9 +29,9 @@ from pathlib import Path
 import streamlit as st
 import yaml
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).resolve().parent
 TAXONOMY_ROOT = ROOT / "taxonomy"
-DEFAULT_TAXONOMY_FOLDER = "v2"
+DEFAULT_TAXONOMY_FOLDER = "v3"
 
 CATEGORY_LABELS = {
     "perceptibility": "Perceptibility",
@@ -85,8 +92,6 @@ RUNS_FILE = "runs.yaml"
 
 
 def discover_taxonomy_folders() -> list[str]:
-    """Subdirectories of taxonomy/ that look like a taxonomy folder (contain
-    a runs.yaml) -- e.g. v2, and a fresh v3 you've started for a new corpus."""
     if not TAXONOMY_ROOT.is_dir():
         return [DEFAULT_TAXONOMY_FOLDER]
     folders = sorted(
@@ -97,14 +102,6 @@ def discover_taxonomy_folders() -> list[str]:
 
 
 def _yaml_fingerprint(taxonomy_dir: Path) -> tuple[tuple[str, int], ...]:
-    """Mtime of every taxonomy YAML file in the given folder, used as a
-    cache-busting key so load_types()/load_tasks() reload whenever a file
-    changes on disk (rather than only when app.py itself changes).
-
-    Must be passed to those functions under a name that does NOT start with
-    an underscore -- st.cache_data drops leading-underscore parameters from
-    the cache key (its opt-out for unhashable args), which silently defeats
-    the whole point of this fingerprint."""
     return tuple(
         (path.name, path.stat().st_mtime_ns)
         for path in sorted(taxonomy_dir.glob("*.yaml"))
@@ -127,6 +124,12 @@ def load_types(taxonomy_dir: Path, fingerprint: tuple[tuple[str, int], ...]) -> 
     return types
 
 
+@st.cache_data
+def load_tasks(taxonomy_dir: Path, fingerprint: tuple[tuple[str, int], ...]) -> list[dict]:
+    path = taxonomy_dir / RUNS_FILE
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or []
+
+
 def category_filename_mismatches(types: list[dict]) -> list[str]:
     """Types sitting in a category-named file (v3) whose `category` field
     disagrees with the filename -- e.g. an entry pasted into F-PRC.yaml but
@@ -144,12 +147,6 @@ def category_filename_mismatches(types: list[dict]) -> list[str]:
     return problems
 
 
-@st.cache_data
-def load_tasks(taxonomy_dir: Path, fingerprint: tuple[tuple[str, int], ...]) -> list[dict]:
-    path = taxonomy_dir / RUNS_FILE
-    return yaml.safe_load(path.read_text(encoding="utf-8")) or []
-
-
 def source_of(task: dict, run: dict) -> str | None:
     """`source` describes the application an attempt targeted, so it belongs
     to the Task -- it cannot differ between runs of the same task. v3 stores
@@ -159,25 +156,21 @@ def source_of(task: dict, run: dict) -> str | None:
 
 
 def build_type_index(tasks: list[dict]) -> dict[str, list[dict]]:
-    """type_id -> list of {"task", "run", "edge"} dicts, one per Run that
-    tags that type via its failures[] list. Order follows runs.yaml (Task
-    id, then Run id), so it's stable and matches how the old schema's
-    observations: list read top to bottom."""
     index: dict[str, list[dict]] = defaultdict(list)
     for task in tasks:
         for run in task.get("runs", []) or []:
             for edge in run.get("failures", []) or []:
-                index[edge["type"]].append({"task": task, "run": run, "edge": edge})
+                index[edge["type"]].append(
+                    {"task": task, "run": run, "edge": edge})
     return index
 
 
 def facet_values(t: dict, index: dict[str, list[dict]], facet: str) -> tuple[list[str], list[str]]:
-    """Return (observed, expected) value lists for a type-level facet.
-    `observed` is derived from the runs tagging this type (never stored in
-    the yaml — see the module docstring); `expected` is still hand-authored."""
     entries = index.get(t["id"], [])
-    observed = sorted({e["run"].get(facet) for e in entries if e["run"].get(facet)})
-    expected = list((t.get("facets", {}).get(facet, {}) or {}).get("expected") or [])
+    observed = sorted({e["run"].get(facet)
+                      for e in entries if e["run"].get(facet)})
+    expected = list((t.get("facets", {}).get(
+        facet, {}) or {}).get("expected") or [])
     return observed, expected
 
 
@@ -187,9 +180,89 @@ def facet_chips(observed: list[str], expected: list[str]) -> str:
     return " ".join(chips) if chips else "—"
 
 
+def observation_count(t: dict, index: dict[str, list[dict]]) -> int:
+    return len({e["task"]["id"] for e in index.get(t["id"], [])})
+
+
+def render_evidence_flat(t: dict, index: dict[str, list[dict]], type_labels: dict[str, str]) -> None:
+    """Evidence as plain indented lines: no bordered containers, a thin
+    `---` divider between observations instead of a box."""
+    entries = index.get(t["id"], [])
+    if not entries:
+        st.info("No logged runs — predicted / expected only.")
+        return
+
+    by_task: dict[str, dict] = {}
+    for e in entries:
+        task_id = e["task"]["id"]
+        by_task.setdefault(task_id, {"task": e["task"], "items": []})[
+            "items"].append(e)
+
+    st.markdown(f"**Observations ({len(by_task)})**")
+    for i, group in enumerate(by_task.values()):
+        task = group["task"]
+        header = f"**`{task['id']}`** · {task.get('app', '—')}"
+        if task.get("task"):
+            header += f" · *{task['task']}*"
+        st.markdown(header)
+        caption_bits = []
+        if task.get("task_id"):
+            caption_bits.append(f"Task ID: `{task['task_id']}`")
+        if task.get("source"):
+            # v3: source lives on the Task, so show it once here rather
+            # than repeating it on every run line below.
+            caption_bits.append(
+                f"Source: {SOURCE_BADGE.get(task['source'], task['source'])}")
+        if caption_bits:
+            st.caption("  ·  ".join(caption_bits))
+
+        for e in group["items"]:
+            run, edge = e["run"], e["edge"]
+            other = [f for f in run.get(
+                "failures", []) if f["type"] != t["id"]]
+            other_txt = ""
+            if other:
+                others = ", ".join(
+                    f"`{f['type']}` ({type_labels.get(f['type'], f['type'])})" for f in other)
+                other_txt = f"  ·  also evidences: {others}"
+            unverified = "  :gray[(unverified)]" if run.get(
+                "verified") is False else ""
+            # run_id is the harness's own id for the execution (v3 onward,
+            # absent in v2) -- the pointer back to the raw trace. Rendered
+            # as-is on purpose: one written with a `T`/space separator
+            # instead of `_` parses as a datetime, and showing YAML's
+            # reformatting of it is the tell that it's wrong.
+            harness_id = run.get("run_id")
+            harness_txt = f"  :gray[{harness_id}]" if harness_id else ""
+            # Only repeat source per run when the Task doesn't carry it (v2).
+            run_source = None if task.get("source") else run.get("source")
+            source_txt = (
+                f"  ·  {SOURCE_BADGE.get(run_source, run_source)}"
+                if run_source else "")
+            st.markdown(
+                f"&nbsp;&nbsp;&nbsp;&nbsp;↳ `{run['id']}`{harness_txt}{unverified}  ·  "
+                f"{run.get('representation', '—')} · {run.get('platform', '—')}  ·  "
+                f"{OUTCOME_BADGE.get(run.get('outcome'), run.get('outcome', '—'))}"
+                f"{source_txt}{other_txt}"
+            )
+            if run.get("notes"):
+                st.caption(
+                    f"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{run['notes'].strip()}")
+            edge_cause, edge_stage = edge.get("cause"), edge.get("stage")
+            type_cause = (t.get("facets", {}) or {}).get("cause")
+            type_stage = (t.get("facets", {}) or {}).get("stage")
+            if (edge_cause, edge_stage) != (type_cause, type_stage):
+                st.caption(
+                    f"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This run: "
+                    f"{CAUSE_BADGE.get(edge_cause, edge_cause or '—')} · "
+                    f"{STAGE_BADGE.get(edge_stage, edge_stage or '—')}"
+                )
+        if i < len(by_task) - 1:
+            st.markdown("---")
+
+
 def render_type(t: dict, index: dict[str, list[dict]], type_labels: dict[str, str]) -> None:
     category_label = CATEGORY_LABELS.get(t["category"], t["category"])
-    entries = index.get(t["id"], [])
     remediation = t.get("remediation", {}) or {}
 
     left, right = st.columns([3, 1])
@@ -212,8 +285,10 @@ def render_type(t: dict, index: dict[str, list[dict]], type_labels: dict[str, st
         st.markdown("**Attributes**")
         st.markdown(f"File: `{t['_source_file']}`")
         st.markdown(f"Category: `{category_label}`")
-        st.markdown(f"Cause: {CAUSE_BADGE.get(cause, cause or '—')} (dominant case)")
-        st.markdown(f"Stage: {STAGE_BADGE.get(stage, stage or '—')} (dominant case)")
+        st.markdown(
+            f"Cause: {CAUSE_BADGE.get(cause, cause or '—')} (dominant case)")
+        st.markdown(
+            f"Stage: {STAGE_BADGE.get(stage, stage or '—')} (dominant case)")
         if t.get("assessment_ref"):
             st.markdown(f"Assessment ref: `{t['assessment_ref']}`")
 
@@ -224,84 +299,12 @@ def render_type(t: dict, index: dict[str, list[dict]], type_labels: dict[str, st
         st.markdown("**Platform**")
         st.markdown(facet_chips(plat_obs, plat_exp))
 
-    if entries:
-        by_task: dict[str, dict] = {}
-        for entry in entries:
-            task_id = entry["task"]["id"]
-            by_task.setdefault(task_id, {"task": entry["task"], "items": []})["items"].append(entry)
-
-        n_tasks = len(by_task)
-        st.markdown(f"**Observations ({n_tasks})**")
-        for group in by_task.values():
-            task = group["task"]
-            runs_in_obs = group["items"]
-            with st.container(border=True):
-                st.markdown(f"`{task['id']}`  ·  App: **{task.get('app', '—')}**")
-                if task.get("task"):
-                    st.markdown(f"*{task['task']}*")
-                caption_bits = []
-                if task.get("task_id"):
-                    caption_bits.append(f"Task ID: `{task['task_id']}`")
-                if task.get("source"):
-                    # v3: source lives on the Task, so show it once here
-                    # rather than repeating it on every run card below.
-                    caption_bits.append(
-                        f"Source: {SOURCE_BADGE.get(task['source'], task['source'])}")
-                if len(runs_in_obs) > 1:
-                    caption_bits.append(f"{len(runs_in_obs)} runs recorded")
-                if caption_bits:
-                    st.caption("  ·  ".join(caption_bits))
-
-                for entry in runs_in_obs:
-                    run, edge = entry["run"], entry["edge"]
-                    with st.container(border=True):
-                        c1, c2 = st.columns([2, 1])
-                        with c1:
-                            # run_id is the harness's own id for the execution
-                            # (v3 onward, absent in v2) -- the pointer back to
-                            # the raw trace. Rendered as-is on purpose: one
-                            # written with a `T`/space separator instead of `_`
-                            # parses as a datetime, and showing YAML's
-                            # reformatting of it is the tell that it's wrong.
-                            harness_id = run.get("run_id")
-                            st.markdown(
-                                f"`{run['id']}`"
-                                + (f"  :gray[{harness_id}]" if harness_id else "")
-                                + ("  :gray[(unverified)]" if run.get("verified") is False else ""))
-                            if run.get("notes"):
-                                st.caption(run["notes"].strip())
-                            other_types = [f for f in run.get("failures", []) if f["type"] != t["id"]]
-                            if other_types:
-                                others = ", ".join(
-                                    f"`{f['type']}` ({type_labels.get(f['type'], f['type'])})"
-                                    for f in other_types
-                                )
-                                st.caption(f"Same run also evidences: {others}")
-                        with c2:
-                            st.markdown(
-                                f"{run.get('representation', '—')} · {run.get('platform', '—')}"
-                            )
-                            st.markdown(OUTCOME_BADGE.get(
-                                run.get("outcome"), run.get("outcome", "—")))
-                            if run.get("source") and not task.get("source"):
-                                # v2 only -- v3 shows it on the task caption.
-                                st.markdown(
-                                    f"Source: {SOURCE_BADGE.get(run['source'], run['source'])}")
-                            if run.get("route"):
-                                st.markdown(f"Route: `{run['route']}`")
-                            edge_cause, edge_stage = edge.get("cause"), edge.get("stage")
-                            if (edge_cause, edge_stage) != (cause, stage):
-                                st.caption(
-                                    f"This run: {CAUSE_BADGE.get(edge_cause, edge_cause or '—')} · "
-                                    f"{STAGE_BADGE.get(edge_stage, edge_stage or '—')}"
-                                )
-    else:
-        st.info("No logged runs — predicted / expected only.")
+    render_evidence_flat(t, index, type_labels)
 
 
 def main() -> None:
     st.set_page_config(page_title="GUI Failure Taxonomy",
-                       page_icon="🔍", layout="wide")
+                       page_icon="🧭", layout="wide")
 
     available_folders = discover_taxonomy_folders()
     with st.sidebar:
@@ -315,9 +318,6 @@ def main() -> None:
         selected_folder = st.selectbox(
             "Taxonomy folder", available_folders,
             index=available_folders.index(default_folder),
-            help="Which taxonomy/<folder> to browse. Auto-detected: any "
-                 "subfolder of taxonomy/ containing a runs.yaml (e.g. a "
-                 "fresh, empty folder started for a new corpus).",
         )
         if selected_folder != DEFAULT_TAXONOMY_FOLDER:
             st.query_params["folder"] = selected_folder
@@ -353,22 +353,18 @@ def main() -> None:
         all_cats = [c for c in CATEGORY_LABELS if c in present_cats]
         all_cats += sorted(present_cats - set(all_cats))
         all_causes = sorted({t.get("facets", {}).get("cause")
-                            for t in types if t.get("facets", {}).get("cause")})
+                             for t in types if t.get("facets", {}).get("cause")})
         all_stages = sorted({t.get("facets", {}).get("stage")
-                            for t in types if t.get("facets", {}).get("stage")})
+                             for t in types if t.get("facets", {}).get("stage")})
         all_sources = sorted({s for task in tasks
                               for run in task.get("runs", []) or []
                               if (s := source_of(task, run))})
         all_outcomes = sorted({run.get("outcome") for task in tasks
-                                for run in task.get("runs", []) if run.get("outcome")})
+                               for run in task.get("runs", []) if run.get("outcome")})
 
         sel_cats = st.multiselect(
             "Category", all_cats, default=all_cats,
-            format_func=lambda c: CATEGORY_LABELS.get(c, c),
-            help="Filters on each type's `category` field. In a v3 folder "
-                 "that is 1:1 with its source file (F-PRC.yaml, …); in v2, "
-                 "files are platforms and cut across categories.",
-        )
+            format_func=lambda c: CATEGORY_LABELS.get(c, c))
         sel_causes = st.multiselect("Cause", all_causes, default=all_causes)
         sel_stages = st.multiselect("Stage", all_stages, default=all_stages)
 
@@ -378,7 +374,6 @@ def main() -> None:
         sel_plats = st.multiselect("Platform", PLATFORMS, default=PLATFORMS)
         observed_only = st.checkbox(
             "Observed only (exclude expected-only matches)", value=False,
-            help="When on, a type must have the selected representation/platform in its derived OBSERVED set, not just expected.",
         )
 
         st.divider()
@@ -399,14 +394,7 @@ def main() -> None:
         qp_interval = min(max(qp_interval, 3), 300)
 
         auto_refresh = st.checkbox(
-            "Auto-refresh",
-            value=st.query_params.get("autorefresh") == "1",
-            help="Streamlit's dev-mode file watcher only tracks .py files, not "
-                 "taxonomy/v2/*.yaml, so editing a YAML doesn't trigger a rerun "
-                 "on its own — turn this on to reload the page on an interval "
-                 "instead of refreshing the browser tab by hand. Uses a full "
-                 "page reload, so the setting is round-tripped through the URL "
-                 "(?autorefresh=1&interval=N) to survive it.",
+            "Auto-refresh", value=st.query_params.get("autorefresh") == "1",
         )
         if auto_refresh:
             refresh_secs = int(st.number_input(
@@ -464,20 +452,12 @@ def main() -> None:
     filtered = [t for t in types if type_matches(t)]
     filtered.sort(key=lambda t: (t["_source_file"], t["id"]))
 
-    def entries_for(t: dict) -> list[dict]:
-        return index.get(t["id"], [])
-
-    def observation_count(t: dict) -> int:
-        """Number of distinct Tasks evidencing this type. A Task with
-        multiple Runs (e.g. the classic VO-fails/MM-succeeds contrast) is
-        one observation, not one per run — an observation is derived from
-        the Task, not the Run."""
-        return len({e["task"]["id"] for e in entries_for(t)})
-
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Types", len(filtered))
-    m2.metric("Observations", sum(observation_count(t) for t in filtered))
-    m3.metric("With observations", sum(1 for t in filtered if entries_for(t)))
+    m2.metric("Observations", sum(observation_count(t, index)
+              for t in filtered))
+    m3.metric("With observations", sum(
+        1 for t in filtered if index.get(t["id"])))
     m4.metric("Categories", len({t["category"] for t in filtered}))
 
     st.divider()
@@ -497,30 +477,23 @@ def main() -> None:
 
         category_label = CATEGORY_LABELS.get(category, category)
         n_types = len(group)
-        n_obs = sum(observation_count(t) for t in group)
-        n_with_evidence = sum(1 for t in group if entries_for(t))
+        n_obs = sum(observation_count(t, index) for t in group)
 
+        # No redundant metric row here (unlike app.py) -- the heading below
+        # already states types/observations counts in text.
         st.markdown(
             f"## {category_label}  ·  {n_types} types  ·  "
             f"{n_obs} observation{'s' if n_obs != 1 else ''}")
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Types", n_types)
-        c2.metric("Observations", n_obs)
-        c3.metric("With observations", n_with_evidence)
         st.divider()
 
         for t in group:
-            n_obs_t = observation_count(t)
+            n_obs_t = observation_count(t, index)
             badge = f"({n_obs_t} observation{'s' if n_obs_t != 1 else ''})" if n_obs_t else "(predicted only)"
-            # In a category-per-file folder the source file is just the
-            # section header again, so only show it when it says something
-            # the header doesn't (v2: the platform the type lives under).
+            # Category files repeat the section header; only show the source
+            # file when it adds something (v2: the type's platform).
             origin = ("" if t["_source_file"] in CODE_TO_CATEGORY
                       else f"{t['_source_file']}  ")
-            label = (
-                f"{t['id']}  ·  {t['failure'].replace('_', ' ')}  ·  "
-                f"{origin}{badge}"
-            )
+            label = f"{t['id']}  ·  {t['failure'].replace('_', ' ')}  ·  {origin}{badge}"
             with st.expander(label, expanded=False):
                 render_type(t, index, type_labels)
 

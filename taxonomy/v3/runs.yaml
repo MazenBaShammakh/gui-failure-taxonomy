@@ -1,8 +1,11 @@
 # GUI Agent Failures — Tasks and Runs (v3)
 #
 # Generated from two sources:
-#   * `taxonomy/v3/task_runs.json` — the agent harness's record of every
-#     attempt. Supplies every Run field except `failures[]`.
+#   * `taxonomy/v3/task_runs_01.json` (T-001..T-021) and
+#     `taxonomy/v3/task_runs_02.json` (T-022..T-045) — the agent harness's
+#     record of every attempt, split by collection batch. Together they
+#     replace the former single `task_runs.json`. Supply every Run field
+#     except `failures[]`.
 #   * The Notion "Failure Taxonomy" database's `Tasks` relation — supplies
 #     `failures[]`. That relation is TASK-level, so each of a task's runs
 #     receives the same failure type(s); `cause`/`stage` on each edge are
@@ -30,6 +33,13 @@
 # `notes:` is a stub holding the harness facts worth keeping (agent, model,
 # steps, stop_reason, error, trace path). Replace the TODO with the
 # mechanism — what the agent did and why the GUI defeated it.
+#
+# T-022..T-045 (batch 02, gui-failure-suite-mobile-2860..2894) take their
+# `failures[]` from the task->defect assignment supplied with that batch, not
+# from a Notion query — same TASK-level granularity, same caveat above. 11
+# assigned ids have no attempts in task_runs_02.json and so have no entry
+# here yet: 2861, 2862, 2863, 2864, 2876, 2877, 2880, 2881, 2883, 2885, 2891.
+# Batch 02 contains no `aborted` attempts; every attempt in it is recorded.
 #
 # Excluded from the source JSON: 40 attempts with `status: aborted`, and one
 # `2026-04-07_183508` (gui-failure-suite-web-2835, multimodal) whose status,
@@ -897,4 +907,1521 @@
       failures:
         - type: F-IDT-04
           cause: agent-side
+          stage: prediction
+
+- id: T-022
+  task_id: "gui-failure-suite-mobile-2860"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Careers app, open the Featured Role and open the Acme Corp company profile."
+  source: controlled
+  runs:
+    - id: T-022-a
+      run_id: 2026-07-26_163224
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=4, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2860.
+      failures:
+        - type: F-IDT-02
+          cause: software-side
+          stage: prediction
+    - id: T-022-b
+      run_id: 2026-07-27_111450
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2860.
+      failures:
+        - type: F-IDT-02
+          cause: software-side
+          stage: prediction
+    - id: T-022-c
+      run_id: 2026-07-27_112458
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2860.
+      failures:
+        - type: F-IDT-02
+          cause: software-side
+          stage: prediction
+    - id: T-022-d
+      run_id: 2026-07-27_112843
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=1, status=failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2860.
+      failures:
+        - type: F-IDT-02
+          cause: software-side
+          stage: prediction
+    - id: T-022-e
+      run_id: 2026-07-27_112943
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=1, status=failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2860.
+      failures:
+        - type: F-IDT-02
+          cause: software-side
+          stage: prediction
+    - id: T-022-f
+      run_id: 2026-07-27_113124
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2860.
+      failures:
+        - type: F-IDT-02
+          cause: software-side
+          stage: prediction
+    - id: T-022-g
+      run_id: 2026-07-27_113401
+      representation: vision-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_success,
+        status=human_success, app_variant=baseline, error="Success flagged by
+        human observer (pressed 'd')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2860.
+      failures:
+        - type: F-IDT-02
+          cause: software-side
+          stage: prediction
+
+- id: T-023
+  task_id: "gui-failure-suite-mobile-2865"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Calendar app, tap New Event and put the event on the green calendar."
+  source: controlled
+  runs:
+    - id: T-023-a
+      run_id: 2026-07-27_095713
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=8, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2865.
+      failures:
+        - type: F-IDT-05
+          cause: software-side
+          stage: prediction
+    - id: T-023-b
+      run_id: 2026-07-27_111450
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=8, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2865.
+      failures:
+        - type: F-IDT-05
+          cause: software-side
+          stage: prediction
+    - id: T-023-c
+      run_id: 2026-07-27_115449
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2865.
+      failures:
+        - type: F-IDT-05
+          cause: software-side
+          stage: prediction
+    - id: T-023-d
+      run_id: 2026-07-27_115540
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2865.
+      failures:
+        - type: F-IDT-05
+          cause: software-side
+          stage: prediction
+
+- id: T-024
+  task_id: "gui-failure-suite-mobile-2866"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Tasks app, open the Checklist and open the item flagged red (highest priority)."
+  source: controlled
+  runs:
+    - id: T-024-a
+      run_id: 2026-07-27_095811
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2866.
+      failures:
+        - type: F-IDT-05
+          cause: software-side
+          stage: prediction
+    - id: T-024-b
+      run_id: 2026-07-27_111450
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2866.
+      failures:
+        - type: F-IDT-05
+          cause: software-side
+          stage: prediction
+    - id: T-024-c
+      run_id: 2026-07-27_115808
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2866.
+      failures:
+        - type: F-IDT-05
+          cause: software-side
+          stage: prediction
+    - id: T-024-d
+      run_id: 2026-07-27_115857
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2866.
+      failures:
+        - type: F-IDT-05
+          cause: software-side
+          stage: prediction
+    - id: T-024-e
+      run_id: 2026-07-27_115943
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2866.
+      failures:
+        - type: F-IDT-05
+          cause: software-side
+          stage: prediction
+
+- id: T-025
+  task_id: "gui-failure-suite-mobile-2867"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the App Store app, open the Notiz app listing and find out what data the app collects."
+  source: controlled
+  runs:
+    - id: T-025-a
+      run_id: 2026-07-27_095858
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=4, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2867.
+      failures:
+        - type: F-PRC-02
+          cause: software-side
+          stage: prediction
+    - id: T-025-b
+      run_id: 2026-07-27_111450
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2867.
+      failures:
+        - type: F-PRC-02
+          cause: software-side
+          stage: prediction
+    - id: T-025-c
+      run_id: 2026-07-27_120200
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2867.
+      failures:
+        - type: F-PRC-02
+          cause: software-side
+          stage: prediction
+    - id: T-025-d
+      run_id: 2026-07-27_120355
+      representation: vision-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=4, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2867.
+      failures:
+        - type: F-PRC-02
+          cause: software-side
+          stage: prediction
+
+- id: T-026
+  task_id: "gui-failure-suite-mobile-2868"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Shop app, open Checkout and redeem the gift card 12345678900004417."
+  source: controlled
+  runs:
+    - id: T-026-a
+      run_id: 2026-07-27_095959
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=6, status=failure,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2868.
+      failures:
+        - type: F-PRC-02
+          cause: software-side
+          stage: prediction
+    - id: T-026-b
+      run_id: 2026-07-27_100111
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=7, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2868.
+      failures:
+        - type: F-PRC-02
+          cause: software-side
+          stage: prediction
+    - id: T-026-c
+      run_id: 2026-07-27_111450
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=7, status=failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2868.
+      failures:
+        - type: F-PRC-02
+          cause: software-side
+          stage: prediction
+    - id: T-026-d
+      run_id: 2026-07-27_120246
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=8, status=failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2868.
+      failures:
+        - type: F-PRC-02
+          cause: software-side
+          stage: prediction
+    - id: T-026-e
+      run_id: 2026-07-27_120458
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=9, status=failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2868.
+      failures:
+        - type: F-PRC-02
+          cause: software-side
+          stage: prediction
+    - id: T-026-f
+      run_id: 2026-07-27_120632
+      representation: vision-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=11, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2868.
+      failures:
+        - type: F-PRC-02
+          cause: software-side
+          stage: prediction
+
+- id: T-027
+  task_id: "gui-failure-suite-mobile-2869"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Social app, open the Profile and send Anna Kovacs a message."
+  source: controlled
+  runs:
+    - id: T-027-a
+      run_id: 2026-07-27_100248
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2869.
+      failures:
+        - type: F-PRC-03
+          cause: software-side
+          stage: prediction
+    - id: T-027-b
+      run_id: 2026-07-27_111450
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=9, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2869.
+      failures:
+        - type: F-PRC-03
+          cause: software-side
+          stage: prediction
+    - id: T-027-c
+      run_id: 2026-07-27_120831
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=4, status=failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2869.
+      failures:
+        - type: F-PRC-03
+          cause: software-side
+          stage: prediction
+    - id: T-027-d
+      run_id: 2026-07-27_120917
+      representation: vision-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=9, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2869.
+      failures:
+        - type: F-PRC-03
+          cause: software-side
+          stage: prediction
+
+- id: T-028
+  task_id: "gui-failure-suite-mobile-2870"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Shop app, open the Photo Gallery and share the product photo via Mail."
+  source: controlled
+  runs:
+    - id: T-028-a
+      run_id: 2026-07-27_100408
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=6, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2870.
+      failures:
+        - type: F-PRC-04
+          cause: software-side
+          stage: prediction
+    - id: T-028-b
+      run_id: 2026-07-27_121106
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=7, status=failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2870.
+      failures:
+        - type: F-PRC-04
+          cause: software-side
+          stage: prediction
+    - id: T-028-c
+      run_id: 2026-07-27_121201
+      representation: vision-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=14, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2870.
+      failures:
+        - type: F-PRC-04
+          cause: software-side
+          stage: prediction
+
+- id: T-029
+  task_id: "gui-failure-suite-mobile-2871"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Social app, open Create Post and attach a photo from your library."
+  source: controlled
+  runs:
+    - id: T-029-a
+      run_id: 2026-07-27_100836
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2871.
+      failures:
+        - type: F-PRC-04
+          cause: software-side
+          stage: prediction
+    - id: T-029-b
+      run_id: 2026-07-27_121501
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=7, status=failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2871.
+      failures:
+        - type: F-PRC-04
+          cause: software-side
+          stage: prediction
+    - id: T-029-c
+      run_id: 2026-07-27_121822
+      representation: vision-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_success,
+        status=human_success, app_variant=faulty, error="Success flagged by
+        human observer (pressed 'd')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2871.
+      failures:
+        - type: F-PRC-04
+          cause: software-side
+          stage: prediction
+
+- id: T-030
+  task_id: "gui-failure-suite-mobile-2872"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Dashboard app, open Overview and open the breakdown for the \"Mobile\" traffic segment."
+  source: controlled
+  runs:
+    - id: T-030-a
+      run_id: 2026-07-27_101216
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2872.
+      failures:
+        - type: F-PRC-05
+          cause: software-side
+          stage: prediction
+    - id: T-030-b
+      run_id: 2026-07-27_121949
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=8, status=failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2872.
+      failures:
+        - type: F-PRC-05
+          cause: software-side
+          stage: prediction
+    - id: T-030-c
+      run_id: 2026-07-27_122302
+      representation: vision-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=15, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2872.
+      failures:
+        - type: F-PRC-05
+          cause: software-side
+          stage: prediction
+
+- id: T-031
+  task_id: "gui-failure-suite-mobile-2873"
+  app: "com.mazenbashammakh.mobile"
+  task: "Open Settings (gear icon on the Home screen), open Preferences, and tell me which reading theme is currently selected."
+  source: controlled
+  runs:
+    - id: T-031-a
+      run_id: 2026-07-27_101255
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=4, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2873.
+      failures:
+        - type: F-PRC-06
+          cause: software-side
+          stage: prediction
+    - id: T-031-b
+      run_id: 2026-07-27_123959
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=4, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2873.
+      failures:
+        - type: F-PRC-06
+          cause: software-side
+          stage: prediction
+    - id: T-031-c
+      run_id: 2026-07-27_124145
+      representation: vision-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2873.
+      failures:
+        - type: F-PRC-06
+          cause: software-side
+          stage: prediction
+    - id: T-031-d
+      run_id: 2026-07-27_124239
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2873.
+      failures:
+        - type: F-PRC-06
+          cause: software-side
+          stage: prediction
+
+- id: T-032
+  task_id: "gui-failure-suite-mobile-2874"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Mail app, open Labels and create a new label called \"Receipts\"."
+  source: controlled
+  runs:
+    - id: T-032-a
+      run_id: 2026-07-27_101334
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=6, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2874.
+      failures:
+        - type: F-NAV-01
+          cause: software-side
+          stage: prediction
+    - id: T-032-b
+      run_id: 2026-07-27_124807
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=7, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2874.
+      failures:
+        - type: F-NAV-01
+          cause: software-side
+          stage: prediction
+    - id: T-032-c
+      run_id: 2026-07-27_124922
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2874.
+      failures:
+        - type: F-NAV-01
+          cause: software-side
+          stage: prediction
+
+- id: T-033
+  task_id: "gui-failure-suite-mobile-2875"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Careers app, open the Position Detail and ask the hiring manager a question about the role."
+  source: controlled
+  runs:
+    - id: T-033-a
+      run_id: 2026-07-27_101441
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=6, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2875.
+      failures:
+        - type: F-NAV-01
+          cause: software-side
+          stage: prediction
+    - id: T-033-b
+      run_id: 2026-07-27_125145
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=8, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2875.
+      failures:
+        - type: F-NAV-01
+          cause: software-side
+          stage: prediction
+    - id: T-033-c
+      run_id: 2026-07-27_125304
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2875.
+      failures:
+        - type: F-NAV-01
+          cause: software-side
+          stage: prediction
+
+- id: T-034
+  task_id: "gui-failure-suite-mobile-2878"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Dashboard app, open Alerts and tell me the earliest alert in the history."
+  source: controlled
+  runs:
+    - id: T-034-a
+      run_id: 2026-07-27_101846
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=8, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2878.
+      failures:
+        - type: F-FBK-01
+          cause: software-side
+          stage: execution
+    - id: T-034-b
+      run_id: 2026-07-27_130006
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2878.
+      failures:
+        - type: F-FBK-01
+          cause: software-side
+          stage: execution
+    - id: T-034-c
+      run_id: 2026-07-27_130131
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2878.
+      failures:
+        - type: F-FBK-01
+          cause: software-side
+          stage: execution
+
+- id: T-035
+  task_id: "gui-failure-suite-mobile-2879"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Music app, open Playlists and open the \"Focus\" playlist."
+  source: controlled
+  runs:
+    - id: T-035-a
+      run_id: 2026-07-27_102151
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=6, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2879.
+      failures:
+        - type: F-TMP-01
+          cause: software-side
+          stage: prediction
+    - id: T-035-b
+      run_id: 2026-07-27_130408
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2879.
+      failures:
+        - type: F-TMP-01
+          cause: software-side
+          stage: prediction
+    - id: T-035-c
+      run_id: 2026-07-27_130517
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2879.
+      failures:
+        - type: F-TMP-01
+          cause: software-side
+          stage: prediction
+
+- id: T-036
+  task_id: "gui-failure-suite-mobile-2882"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Music app, open Browse and start the Chill Radio station."
+  source: controlled
+  runs:
+    - id: T-036-a
+      run_id: 2026-07-27_102151
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=failure,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2882.
+      failures:
+        - type: F-INS-01
+          cause: software-side
+          stage: prediction
+    - id: T-036-b
+      run_id: 2026-07-27_131730
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2882.
+      failures:
+        - type: F-INS-01
+          cause: software-side
+          stage: prediction
+    - id: T-036-c
+      run_id: 2026-07-27_131909
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=7, status=failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2882.
+      failures:
+        - type: F-INS-01
+          cause: software-side
+          stage: prediction
+
+- id: T-037
+  task_id: "gui-failure-suite-mobile-2884"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Photos app, open the Library and open the photo captioned \"Harbour cranes\"."
+  source: controlled
+  runs:
+    - id: T-037-a
+      run_id: 2026-07-27_102151
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=6, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2884.
+      failures:
+        - type: F-STR-01
+          cause: software-side
+          stage: prediction
+    - id: T-037-b
+      run_id: 2026-07-27_140843
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2884.
+      failures:
+        - type: F-STR-01
+          cause: software-side
+          stage: prediction
+    - id: T-037-c
+      run_id: 2026-07-27_140942
+      representation: vision-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_skip, status=success,
+        app_variant=faulty, error="Skipped by user (pressed 's') before
+        completion", trace=None.
+      failures:
+        - type: F-STR-01
+          cause: software-side
+          stage: prediction
+
+- id: T-038
+  task_id: "gui-failure-suite-mobile-2886"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Shop app, open the Listing and open the second organic (non-sponsored) result under Kitchen essentials."
+  source: controlled
+  runs:
+    - id: T-038-a
+      run_id: 2026-07-27_102151
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=6, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2886.
+      failures:
+        - type: F-CNT-02
+          cause: software-side
+          stage: prediction
+    - id: T-038-b
+      run_id: 2026-07-27_141649
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2886.
+      failures:
+        - type: F-CNT-02
+          cause: software-side
+          stage: prediction
+    - id: T-038-c
+      run_id: 2026-07-27_141745
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2886.
+      failures:
+        - type: F-CNT-02
+          cause: software-side
+          stage: prediction
+
+- id: T-039
+  task_id: "gui-failure-suite-mobile-2887"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Mail app, open Archive and tell me the oldest message in the archive."
+  source: controlled
+  runs:
+    - id: T-039-a
+      run_id: 2026-07-27_102151
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=3, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2887.
+      failures:
+        - type: F-CNT-03
+          cause: software-side
+          stage: prediction
+    - id: T-039-b
+      run_id: 2026-07-27_145631
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=human_failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2887.
+      failures:
+        - type: F-CNT-03
+          cause: software-side
+          stage: prediction
+    - id: T-039-c
+      run_id: 2026-07-27_150201
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2887.
+      failures:
+        - type: F-CNT-03
+          cause: software-side
+          stage: prediction
+
+- id: T-040
+  task_id: "gui-failure-suite-mobile-2888"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Shop app, open Browse Categories and tell me the cheapest item under \"Popular this week\"."
+  source: controlled
+  runs:
+    - id: T-040-a
+      run_id: 2026-07-27_102151
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2888.
+      failures:
+        - type: F-CNT-03
+          cause: software-side
+          stage: prediction
+    - id: T-040-b
+      run_id: 2026-07-27_144417
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=human_failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2888.
+      failures:
+        - type: F-CNT-03
+          cause: software-side
+          stage: prediction
+    - id: T-040-c
+      run_id: 2026-07-27_144703
+      representation: vision-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=10, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2888.
+      failures:
+        - type: F-CNT-03
+          cause: software-side
+          stage: prediction
+    - id: T-040-d
+      run_id: 2026-07-27_144911
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=human_failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2888.
+      failures:
+        - type: F-CNT-03
+          cause: software-side
+          stage: prediction
+    - id: T-040-e
+      run_id: 2026-07-27_145049
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=7, status=human_failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2888.
+      failures:
+        - type: F-CNT-03
+          cause: software-side
+          stage: prediction
+    - id: T-040-f
+      run_id: 2026-07-27_145306
+      representation: vision-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=20, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2888.
+      failures:
+        - type: F-CNT-03
+          cause: software-side
+          stage: prediction
+
+- id: T-041
+  task_id: "gui-failure-suite-mobile-2889"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Social app, open the Feed and tell me the oldest post in the feed."
+  source: controlled
+  runs:
+    - id: T-041-a
+      run_id: 2026-07-27_102151
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=11, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2889.
+      failures:
+        - type: F-FBK-01
+          cause: software-side
+          stage: execution
+    - id: T-041-b
+      run_id: 2026-07-27_143917
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=11, status=failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2889.
+      failures:
+        - type: F-FBK-01
+          cause: software-side
+          stage: execution
+    - id: T-041-c
+      run_id: 2026-07-27_144124
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2889.
+      failures:
+        - type: F-FBK-01
+          cause: software-side
+          stage: execution
+
+- id: T-042
+  task_id: "gui-failure-suite-mobile-2890"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Shop app, open the Store, open the Nike Air Max Pulse, and tell me whether it's in stock."
+  source: controlled
+  runs:
+    - id: T-042-a
+      run_id: 2026-07-27_102151
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2890.
+      failures:
+        - type: F-TMP-02
+          cause: joint
+          stage: execution
+    - id: T-042-b
+      run_id: 2026-07-27_143323
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=human_failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2890.
+      failures:
+        - type: F-TMP-02
+          cause: joint
+          stage: execution
+    - id: T-042-c
+      run_id: 2026-07-27_143456
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=9, status=human_failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2890.
+      failures:
+        - type: F-TMP-02
+          cause: joint
+          stage: execution
+
+- id: T-043
+  task_id: "gui-failure-suite-mobile-2892"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Shop app, open the Quantity screen and add the item to your cart."
+  source: controlled
+  runs:
+    - id: T-043-a
+      run_id: 2026-07-27_102151
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=1, status=failure,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2892.
+      failures:
+        - type: F-INS-02
+          cause: software-side
+          stage: execution
+    - id: T-043-b
+      run_id: 2026-07-27_103705
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=5, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2892.
+      failures:
+        - type: F-INS-02
+          cause: software-side
+          stage: execution
+    - id: T-043-c
+      run_id: 2026-07-27_142727
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2892.
+      failures:
+        - type: F-INS-02
+          cause: software-side
+          stage: execution
+    - id: T-043-d
+      run_id: 2026-07-27_142811
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2892.
+      failures:
+        - type: F-INS-02
+          cause: software-side
+          stage: execution
+
+- id: T-044
+  task_id: "gui-failure-suite-mobile-2893"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Careers app, open Filter Jobs and open the last role in the results."
+  source: controlled
+  runs:
+    - id: T-044-a
+      run_id: 2026-07-27_102151
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=1, status=failure,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2893.
+      failures:
+        - type: F-INS-03
+          cause: software-side
+          stage: prediction
+    - id: T-044-b
+      run_id: 2026-07-27_103705
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=9, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2893.
+      failures:
+        - type: F-INS-03
+          cause: software-side
+          stage: prediction
+    - id: T-044-c
+      run_id: 2026-07-27_142234
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=6, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2893.
+      failures:
+        - type: F-INS-03
+          cause: software-side
+          stage: prediction
+    - id: T-044-d
+      run_id: 2026-07-27_142353
+      representation: vision-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, stop_reason=user_failure,
+        status=human_failure, app_variant=faulty, error="Failure flagged by
+        human observer (pressed 'f')",
+        trace=mobilerun\raw\gui-failure-suite-mobile-2893.
+      failures:
+        - type: F-INS-03
+          cause: software-side
+          stage: prediction
+
+- id: T-045
+  task_id: "gui-failure-suite-mobile-2894"
+  app: "com.mazenbashammakh.mobile"
+  task: "In the Careers app, open Reapply and tell me which role you're reapplying for."
+  source: controlled
+  runs:
+    - id: T-045-a
+      run_id: 2026-07-27_102151
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=1, status=failure,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2894.
+      failures:
+        - type: F-CNT-01
+          cause: software-side
+          stage: prediction
+    - id: T-045-b
+      run_id: 2026-07-27_103705
+      representation: text-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=4, status=success,
+        app_variant=baseline,
+        trace=mobilerun\raw\gui-failure-suite-mobile-2894.
+      failures:
+        - type: F-CNT-01
+          cause: software-side
+          stage: prediction
+    - id: T-045-c
+      run_id: 2026-07-27_141911
+      representation: text-only
+      platform: mobile
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=4, status=human_failure,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2894.
+      failures:
+        - type: F-CNT-01
+          cause: software-side
+          stage: prediction
+    - id: T-045-d
+      run_id: 2026-07-27_142035
+      representation: vision-only
+      platform: mobile
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=mobilerun,
+        model=gemini-flash-latest, steps=10, status=success,
+        app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2894.
+      failures:
+        - type: F-CNT-01
+          cause: software-side
           stage: prediction

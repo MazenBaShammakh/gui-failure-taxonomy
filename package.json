@@ -1,0 +1,21 @@
+{
+  "name": "gui-failure-taxonomy",
+  "version": "1.0.0",
+  "description": "A taxonomy of recurring GUI-agent failure modes (text-only / vision-only / multimodal, across web / mobile / desktop), plus the real-world evidence (tasks and runs) backing each one. This document is a practical \"how do I add X\" guide. For the normative schema definition, see `specs/taxonomy-structure.md`; for a fuller repository walkthrough, see `specs/v2-repository-guide.md`.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MazenBaShammakh/gui-failure-taxonomy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/MazenBaShammakh/gui-failure-taxonomy/issues"
+  },
+  "homepage": "https://github.com/MazenBaShammakh/gui-failure-taxonomy#readme"
+}

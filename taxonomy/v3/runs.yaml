@@ -1,8 +1,9 @@
 # GUI Agent Failures — Tasks and Runs (v3)
 #
 # Generated from two sources:
-#   * `taxonomy/v3/task_runs_01.json` (T-001..T-021) and
-#     `taxonomy/v3/task_runs_02.json` (T-022..T-045) — the agent harness's
+#   * `taxonomy/v3/task_runs_01.json` (T-001..T-021),
+#     `taxonomy/v3/task_runs_02.json` (T-022..T-045) and
+#     `taxonomy/v3/task_runs_03.json` (T-046..T-055) — the agent harness's
 #     record of every attempt, split by collection batch. Together they
 #     replace the former single `task_runs.json`. Supply every Run field
 #     except `failures[]`.
@@ -16,6 +17,12 @@
 # attempt targeted, which cannot differ between runs of one task:
 #   localhost / com.mazenbashammakh -> controlled (our own instrumented
 #     build, whether or not the fault was injected for that run)
+#   desktop.exe -> controlled as well. Batch 03 added it, and the rule
+#     above keys on identifiers the desktop build simply doesn't use; it is
+#     the same kind of target as the mobile one — our instrumented build,
+#     shipped in `baseline` and `faulty` variants — so classifying it
+#     `live` ("a real site") would be plainly wrong. Read the first rule as
+#     "our own instrumented build, by whatever name it announces itself".
 #   any other gui-failure-suite target -> live (a real site, visited live)
 #   everything else -> benchmark (the benchmark app as shipped)
 #
@@ -29,6 +36,26 @@
 # exactly one such task out of 49, so expect few, but that is the known
 # imprecision in this file. Narrow a run's `failures[]` by hand when the
 # trace shows it met only some of them.
+#
+# T-046..T-055 (batch 03, gui-failure-suite-desktop_windows-2896..2905) are
+# the first DESKTOP runs in this file: agents `ufo` (text-only, UI-Automation
+# tree) and `pc_agent` (vision-only, screenshots), model gemini-3.5-flash,
+# every task run against both the `baseline` and the `faulty` build variant.
+# Their `failures[]` come from the task->defect assignment supplied with that
+# batch, not from a Notion query — same TASK-level granularity and the same
+# caveat above. Four of the assigned types did not exist in the catalogue and
+# were created from that assignment alone (see each file's header for what is
+# and is not sourced from Notion): F-STR-05, F-FBK-06, F-INA-01, F-INS-04.
+# One assigned id, 2895 (F-STR-01), has no attempts in task_runs_03.json and
+# so has no entry here yet. Batch 03 contains no `aborted` attempts; every
+# attempt in it is recorded.
+#
+# Batch 03 is also the first evidence on `desktop` for types whose
+# `facets.platform.expected` reads `[web]` (F-TMP-02, F-PRC-05, F-IDT-01,
+# F-IDT-03, F-NAV-02). That is not a contradiction to fix in the type files:
+# `expected` is the Notion-sourced PREDICTION and `observed` is derived from
+# these runs at read time (specs/taxonomy-structure.md §2.1). Widen
+# `expected` upstream in Notion if the prediction itself is meant to change.
 #
 # `notes:` is a stub holding the harness facts worth keeping (agent, model,
 # steps, stop_reason, error, trace path). Replace the TODO with the
@@ -2425,3 +2452,617 @@
         - type: F-CNT-01
           cause: software-side
           stage: prediction
+
+- id: T-046
+  task_id: "gui-failure-suite-desktop_windows-2896"
+  app: "desktop.exe"
+  task: "In the Files app, open Sync and sync your Documents folder."
+  source: controlled
+  runs:
+    - id: T-046-a
+      run_id: 2026-07-28_133845
+      representation: text-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=5, status=success, app_variant=baseline,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2896.
+      failures:
+        - type: F-TMP-02
+          cause: joint
+          stage: execution
+    - id: T-046-b
+      run_id: 2026-07-28_134140
+      representation: text-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        stop_reason=user_failure, status=human_failure, app_variant=faulty,
+        error="Failure flagged by human observer (pressed 'f')",
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2896.
+      failures:
+        - type: F-TMP-02
+          cause: joint
+          stage: execution
+    - id: T-046-c
+      run_id: 2026-07-28_152714
+      representation: vision-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        steps=6, status=success, app_variant=baseline,
+        trace=pc_agent\raw\gui-failure-suite-desktop_windows-2896.
+      failures:
+        - type: F-TMP-02
+          cause: joint
+          stage: execution
+    - id: T-046-d
+      run_id: 2026-07-28_152848
+      representation: vision-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        steps=5, status=human_failure, app_variant=faulty,
+        trace=pc_agent\raw\gui-failure-suite-desktop_windows-2896.
+      failures:
+        - type: F-TMP-02
+          cause: joint
+          stage: execution
+
+- id: T-047
+  task_id: "gui-failure-suite-desktop_windows-2897"
+  app: "desktop.exe"
+  task: "In the Notes app, open the Editor and export the note as a PDF."
+  source: controlled
+  runs:
+    - id: T-047-a
+      run_id: 2026-07-28_130301
+      representation: text-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        stop_reason=user_failure, status=human_failure, app_variant=faulty,
+        error="Failure flagged by human observer (pressed 'f')",
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2897.
+      failures:
+        - type: F-PRC-05
+          cause: software-side
+          stage: prediction
+    - id: T-047-b
+      run_id: 2026-07-28_131553
+      representation: text-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=8, status=success, app_variant=baseline,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2897.
+      failures:
+        - type: F-PRC-05
+          cause: software-side
+          stage: prediction
+    - id: T-047-c
+      run_id: 2026-07-28_153056
+      representation: vision-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        steps=5, status=success, app_variant=baseline,
+        trace=pc_agent\raw\gui-failure-suite-desktop_windows-2897.
+      failures:
+        - type: F-PRC-05
+          cause: software-side
+          stage: prediction
+    - id: T-047-d
+      run_id: 2026-07-28_153213
+      representation: vision-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        steps=12, status=success, app_variant=faulty,
+        trace=pc_agent\raw\gui-failure-suite-desktop_windows-2897.
+      failures:
+        - type: F-PRC-05
+          cause: software-side
+          stage: prediction
+
+- id: T-048
+  task_id: "gui-failure-suite-desktop_windows-2898"
+  app: "desktop.exe"
+  task: "In the Notes app, open Formatting and apply a bulleted list to the selected paragraph."
+  source: controlled
+  runs:
+    - id: T-048-a
+      run_id: 2026-07-28_134747
+      representation: text-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=5, status=success, app_variant=baseline,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2898.
+      failures:
+        - type: F-IDT-03
+          cause: software-side
+          stage: prediction
+    - id: T-048-b
+      run_id: 2026-07-28_135209
+      representation: text-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=5, status=success, app_variant=faulty,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2898.
+      failures:
+        - type: F-IDT-03
+          cause: software-side
+          stage: prediction
+    - id: T-048-c
+      run_id: 2026-07-28_153516
+      representation: vision-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        steps=4, status=success, app_variant=baseline,
+        trace=pc_agent\raw\gui-failure-suite-desktop_windows-2898.
+      failures:
+        - type: F-IDT-03
+          cause: software-side
+          stage: prediction
+    - id: T-048-d
+      run_id: 2026-07-28_153619
+      representation: vision-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        stop_reason=user_failure, status=human_failure, app_variant=faulty,
+        error="Failure flagged by human observer (pressed 'f')",
+        trace=pc_agent\raw\gui-failure-suite-desktop_windows-2898.
+      failures:
+        - type: F-IDT-03
+          cause: software-side
+          stage: prediction
+
+- id: T-049
+  task_id: "gui-failure-suite-desktop_windows-2899"
+  app: "desktop.exe"
+  task: "In the Store app, open Checkout and place the pending order."
+  source: controlled
+  runs:
+    - id: T-049-a
+      run_id: 2026-07-28_134901
+      representation: text-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=5, status=success, app_variant=baseline,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2899.
+      failures:
+        - type: F-IDT-01
+          cause: software-side
+          stage: prediction
+    - id: T-049-b
+      run_id: 2026-07-28_135018
+      representation: text-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=5, status=human_failure, app_variant=faulty,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2899.
+      failures:
+        - type: F-IDT-01
+          cause: software-side
+          stage: prediction
+    - id: T-049-c
+      run_id: 2026-07-28_153754
+      representation: vision-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        steps=4, status=success, app_variant=baseline,
+        trace=pc_agent\raw\gui-failure-suite-desktop_windows-2899.
+      failures:
+        - type: F-IDT-01
+          cause: software-side
+          stage: prediction
+    - id: T-049-d
+      run_id: 2026-07-28_153857
+      representation: vision-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        steps=4, stop_reason=error, status=human_failure,
+        app_variant=faulty,
+        trace=pc_agent\raw\gui-failure-suite-desktop_windows-2899.
+      failures:
+        - type: F-IDT-01
+          cause: software-side
+          stage: prediction
+
+- id: T-050
+  task_id: "gui-failure-suite-desktop_windows-2900"
+  app: "desktop.exe"
+  task: 'In the Files app, open Cleanup and archive the file "draft-notes.docx".'
+  source: controlled
+  runs:
+    - id: T-050-a
+      run_id: 2026-07-28_170926
+      representation: text-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=5, status=success, app_variant=baseline,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2900.
+      failures:
+        - type: F-STR-05
+          cause: software-side
+          stage: prediction
+    - id: T-050-b
+      run_id: 2026-07-28_180817
+      representation: text-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        stop_reason=user_failure, status=human_failure, app_variant=faulty,
+        error="Failure flagged by human observer (pressed 'f')",
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2900.
+      failures:
+        - type: F-STR-05
+          cause: software-side
+          stage: prediction
+    - id: T-050-c
+      run_id: 2026-07-28_183058
+      representation: vision-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        steps=4, status=success, app_variant=faulty,
+        trace=pc_agent\raw\gui-failure-suite-desktop_windows-2900.
+      failures:
+        - type: F-STR-05
+          cause: software-side
+          stage: prediction
+
+- id: T-051
+  task_id: "gui-failure-suite-desktop_windows-2901"
+  app: "desktop.exe"
+  task: "In the Store app, open Shipping and save the delivery address."
+  source: controlled
+  runs:
+    - id: T-051-a
+      run_id: 2026-07-28_171059
+      representation: text-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=0, stop_reason=incomplete, status=failure,
+        app_variant=baseline,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2901.
+      failures:
+        - type: F-FBK-06
+          cause: software-side
+          stage: execution
+    - id: T-051-b
+      run_id: 2026-07-28_171227
+      representation: text-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=0, stop_reason=incomplete, status=failure,
+        app_variant=baseline,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2901.
+      failures:
+        - type: F-FBK-06
+          cause: software-side
+          stage: execution
+    - id: T-051-c
+      run_id: 2026-07-28_171304
+      representation: text-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=0, stop_reason=incomplete, status=failure,
+        app_variant=baseline,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2901.
+      failures:
+        - type: F-FBK-06
+          cause: software-side
+          stage: execution
+    - id: T-051-d
+      run_id: 2026-07-28_171416
+      representation: text-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=5, status=human_failure, app_variant=baseline,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2901.
+      failures:
+        - type: F-FBK-06
+          cause: software-side
+          stage: execution
+    - id: T-051-e
+      run_id: 2026-07-28_180926
+      representation: text-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=5, status=human_failure, app_variant=faulty,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2901.
+      failures:
+        - type: F-FBK-06
+          cause: software-side
+          stage: execution
+    - id: T-051-f
+      run_id: 2026-07-28_183230
+      representation: vision-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        stop_reason=user_failure, status=human_failure, app_variant=faulty,
+        error="Failure flagged by human observer (pressed 'f')",
+        trace=pc_agent\raw\gui-failure-suite-desktop_windows-2901.
+      failures:
+        - type: F-FBK-06
+          cause: software-side
+          stage: execution
+
+- id: T-052
+  task_id: "gui-failure-suite-desktop_windows-2902"
+  app: "desktop.exe"
+  task: 'In the Files app, open Move and move "report-2026.pdf" to the Archive folder.'
+  source: controlled
+  runs:
+    - id: T-052-a
+      run_id: 2026-07-28_171702
+      representation: text-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=7, status=success, app_variant=baseline,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2902.
+      failures:
+        - type: F-INA-01
+          cause: software-side
+          stage: execution
+    - id: T-052-b
+      run_id: 2026-07-28_181131
+      representation: text-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        stop_reason=user_failure, status=human_failure, app_variant=faulty,
+        error="Failure flagged by human observer (pressed 'f')",
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2902.
+      failures:
+        - type: F-INA-01
+          cause: software-side
+          stage: execution
+    - id: T-052-c
+      run_id: 2026-07-28_184332
+      representation: vision-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        stop_reason=user_failure, status=human_failure, app_variant=faulty,
+        error="Failure flagged by human observer (pressed 'f')",
+        trace=pc_agent\raw\gui-failure-suite-desktop_windows-2902.
+      failures:
+        - type: F-INA-01
+          cause: software-side
+          stage: execution
+
+- id: T-053
+  task_id: "gui-failure-suite-desktop_windows-2903"
+  app: "desktop.exe"
+  task: "In the Store app, open Refunds and request a refund for order"
+  source: controlled
+  runs:
+    - id: T-053-a
+      run_id: 2026-07-28_171823
+      representation: text-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=12, status=success, app_variant=baseline,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2903.
+      failures:
+        - type: F-INS-04
+          cause: software-side
+          stage: execution
+    - id: T-053-b
+      run_id: 2026-07-28_180527
+      representation: text-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=12, status=success, app_variant=baseline,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2903.
+      failures:
+        - type: F-INS-04
+          cause: software-side
+          stage: execution
+    - id: T-053-c
+      run_id: 2026-07-28_181255
+      representation: text-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=8, status=success, app_variant=faulty,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2903.
+      failures:
+        - type: F-INS-04
+          cause: software-side
+          stage: execution
+    - id: T-053-d
+      run_id: 2026-07-28_183751
+      representation: vision-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        steps=19, status=success, app_variant=faulty,
+        trace=pc_agent\raw\gui-failure-suite-desktop_windows-2903.
+      failures:
+        - type: F-INS-04
+          cause: software-side
+          stage: execution
+
+- id: T-054
+  task_id: "gui-failure-suite-desktop_windows-2904"
+  app: "desktop.exe"
+  task: "In the Files app, open Versions and restore the version from 12 July."
+  source: controlled
+  runs:
+    - id: T-054-a
+      run_id: 2026-07-28_172238
+      representation: text-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=7, status=success, app_variant=baseline,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2904.
+      failures:
+        - type: F-PRC-05
+          cause: software-side
+          stage: prediction
+    - id: T-054-b
+      run_id: 2026-07-28_181432
+      representation: text-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=4, stop_reason=incomplete, status=failure, app_variant=faulty,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2904.
+      failures:
+        - type: F-PRC-05
+          cause: software-side
+          stage: prediction
+    - id: T-054-c
+      run_id: 2026-07-28_185443
+      representation: vision-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        steps=4, status=success, app_variant=faulty,
+        trace=pc_agent\raw\gui-failure-suite-desktop_windows-2904.
+      failures:
+        - type: F-PRC-05
+          cause: software-side
+          stage: prediction
+
+- id: T-055
+  task_id: "gui-failure-suite-desktop_windows-2905"
+  app: "desktop.exe"
+  task: "In the Notes app, open Settings, open Preferences and turn on autosave."
+  source: controlled
+  runs:
+    - id: T-055-a
+      run_id: 2026-07-28_172358
+      representation: text-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        steps=10, status=success, app_variant=baseline,
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2905.
+      failures:
+        - type: F-NAV-02
+          cause: software-side
+          stage: execution
+    - id: T-055-b
+      run_id: 2026-07-28_181651
+      representation: text-only
+      platform: desktop
+      outcome: failed
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        stop_reason=user_failure, status=human_failure, app_variant=faulty,
+        error="Failure flagged by human observer (pressed 'f')",
+        trace=ufo\raw\gui-failure-suite-desktop_windows-2905.
+      failures:
+        - type: F-NAV-02
+          cause: software-side
+          stage: execution
+    - id: T-055-c
+      run_id: 2026-07-28_185551
+      representation: vision-only
+      platform: desktop
+      outcome: succeeded
+      notes: >
+        TODO describe the mechanism — what the agent did and why the GUI
+        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        steps=6, status=success, app_variant=faulty,
+        trace=pc_agent\raw\gui-failure-suite-desktop_windows-2905.
+      failures:
+        - type: F-NAV-02
+          cause: software-side
+          stage: execution

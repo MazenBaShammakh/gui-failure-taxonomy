@@ -98,3 +98,37 @@
     fix: >
       TODO — no remediation recorded in Notion.
     helps: []
+
+# F-FBK-06 is NOT from Notion. It was created for the batch 03 desktop runs
+# (taxonomy/v3/task_runs_03.json, T-051) whose task->defect assignment named
+# it; `failure` is that assignment's name verbatim, and `description` and
+# every facet below are local judgements read off those runs, not
+# transcriptions. Reconcile it upstream — it has no Notion row and so no
+# "Failure ID (old)". It takes 06 rather than 02 so that the four F7.1..F7.4
+# drafts above can still take 02..05 if that is how the category is
+# renumbered.
+- id: F-FBK-06
+  category: state_feedback
+  failure: Validation Error Rendered Outside the A11y Tree
+  description: >
+    A form rejects its input and paints the reason as decoration — custom-drawn
+    text, a tooltip, a colour change — with nothing in the accessibility tree
+    and no announcement, so the tree still shows a submittable form. A
+    text-only agent sees no error at all and reads the failed submit as done.
+    The batch 03 evidence (T-051) has the vision-only agent failing too:
+    seeing the message rendered is not the same as attributing it to the field
+    it belongs to.
+  facets:
+    representation:
+      expected: [text-only, vision-only]
+    platform:
+      expected: [web, desktop]
+    cause: software-side
+    stage: execution
+  remediation:
+    fix: >
+      TODO — new type, no remediation agreed yet. Starting point: expose the
+      error in the tree and tie it to its field (aria-describedby /
+      aria-invalid, or the platform's equivalent), and raise a live-region
+      style notification when it appears.
+    helps: [text-only, vision-only]

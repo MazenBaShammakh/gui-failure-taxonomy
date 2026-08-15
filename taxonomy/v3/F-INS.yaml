@@ -9,7 +9,8 @@
 # SOURCE OF TRUTH: the Notion "Failure Taxonomy" database
 # (data source 8c07b803-cd9e-45da-a1bf-aeb809e1abbc), rows whose Category
 # relation points at "Interaction Scope" (Category ID F9). Transcribed
-# 2026-07-23; these three are the category's complete set in Notion.
+# 2026-07-23; F-INS-01..03 are the category's complete set in Notion.
+# F-INS-04 is not from Notion at all — see the comment above that entry.
 # `failure`, `description`, `representation`, `platform`, `cause` and
 # `stage` below are that table's values, not local judgements:
 #
@@ -127,3 +128,38 @@
     fix: >
       TODO — no remediation recorded in Notion.
     helps: []
+
+# F-INS-04 is NOT from Notion. It was created for the batch 03 desktop runs
+# (taxonomy/v3/task_runs_03.json, T-053) whose task->defect assignment named
+# it; `failure` is that assignment's name verbatim, and `description` and
+# every facet below are local judgements read off those runs, not
+# transcriptions. Reconcile it upstream — it has no Notion row and so no
+# "Failure ID (old)".
+#
+# It is the inverse of the three above: they are cases where something the
+# agent should be able to reach is blocked, this is a case where something
+# the UI has declared unreachable is reached anyway.
+- id: F-INS-04
+  category: interaction_scope
+  failure: Blocked Window Still Invocable Through Automation
+  description: >
+    A modal disables its owner window for input, but the owner's controls stay
+    enabled in the automation tree and still honour programmatic invocation. A
+    text-only agent driving through the automation API acts on the blocked
+    window behind the modal; the call reports success while a human at the same
+    screen could not have made it, so the agent's model of the app silently
+    diverges from what was actually committed.
+  facets:
+    representation:
+      expected: [text-only]
+    platform:
+      expected: [desktop]
+    cause: software-side
+    stage: execution
+  remediation:
+    fix: >
+      TODO — new type, no remediation agreed yet. Starting point: make the
+      modal's block visible to the automation layer — mark the owner's
+      controls disabled (or the owner window itself not-enabled) for the
+      modal's lifetime, rather than gating input only at the message pump.
+    helps: [text-only]

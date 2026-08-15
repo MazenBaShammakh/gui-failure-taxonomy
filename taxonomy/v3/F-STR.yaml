@@ -89,3 +89,33 @@
     fix: >
       TODO — no remediation recorded in Notion.
     helps: []
+
+# F-STR-05 is NOT from Notion. It was created for the batch 03 desktop runs
+# (taxonomy/v3/task_runs_03.json, T-050) whose task->defect assignment named
+# it; `failure` is that assignment's name verbatim, and `description` and
+# every facet below are local judgements read off those runs, not
+# transcriptions. Reconcile it upstream — it has no Notion row and so no
+# "Failure ID (old)". It takes 05 rather than 02 because 02..04 are reserved
+# for the three drafts listed above.
+- id: F-STR-05
+  category: structural_consistency
+  failure: Accessible Name Contradicts Visible Label
+  description: >
+    A control's accessible name (UI Automation Name / aria-label) names a
+    different thing than the label rendered on it, so the two representations
+    disagree about what the control is. A text-only agent grounds on the
+    accessible name and acts on — or rules out — the wrong control, while a
+    vision-only agent reading the rendered label is unaffected.
+  facets:
+    representation:
+      expected: [text-only]
+    platform:
+      expected: [web, mobile, desktop]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — new type, no remediation agreed yet. Starting point: derive the
+      accessible name from the visible label rather than authoring the two
+      independently, and assert their equality in the widget's tests.
+    helps: [text-only]

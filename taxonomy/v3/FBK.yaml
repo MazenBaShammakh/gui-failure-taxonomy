@@ -1,0 +1,137 @@
+# GUI Agent Failures — State Feedback (v3)
+#
+# One file per category: every type in this file has
+# `category: state_feedback` and an id of the form `FBK-{NN}`. Which
+# platform(s) a type applies to is a facet (`facets.platform`), not a file —
+# that is the difference from v2, where files were mobile/web/desktop/
+# cross-platform and the category lived only inside each entry.
+#
+# SOURCE OF TRUTH: the Notion "Failure Taxonomy" database
+# (data source 8c07b803-cd9e-45da-a1bf-aeb809e1abbc), rows whose Category
+# relation points at "State Feedback" (Category ID F7). Transcribed
+# 2026-07-23. `failure`, `description`, `representation`, `platform`,
+# `cause` and `stage` below are that table's values, not local judgements:
+#
+#   Failure Name    -> failure          (verbatim)
+#   Description     -> description      (verbatim)
+#   Agent Type      -> facets.representation.expected  (lowercased)
+#   Platform        -> facets.platform.expected        (lowercased)
+#   Cause           -> facets.cause                    (lowercased)
+#   Stage           -> facets.stage                    (lowercased)
+#
+# NOT the complete category, and the numbering is out of step: FBK-01 is
+# the only row in F7 with a "Failure ID", and its "Failure ID (old)" is
+# F7.5 — the four rows that precede it (F7.1..F7.4) are still Status:
+# Draft with no id, no Platform and no Agent Type, so there is nothing to
+# key them on yet:
+#
+#   F7.1  Non-Updated State After Failed Action     (software-side, execution)
+#   F7.2  Vague or Non-Specific Validation Error    (software-side, execution)
+#   F7.3  Required Field Lacks Visible Indicator    (software-side, prediction)
+#   F7.4  No Visible Feedback on Action Trigger     (software-side, execution)
+#
+# A sixth row, "Ignored Surface Error Feedback" (Status: Needs Review), has
+# no id, no old id, and no cause/stage/facets at all. Numbering the four
+# drafts ahead of the row already published as FBK-01 would renumber it,
+# so decide upstream whether the four drafts take FBK-03..06 (the current,
+# post-2026-08-15-rename slots after FBK-01/FBK-02) or whether the whole
+# category is resequenced.
+#
+# Notion columns not carried here: "Example Task(s)" and "Tasks" belong in
+# runs.yaml (§3.2); "Status"/"Source" are Notion workflow metadata (this
+# row is Status: "Added to Taxonomy (w/o obs)", Source: empty);
+# "Failure ID (old)" as described above; "Notes/Open Questions" is empty.
+#
+# `assessment_ref` is omitted: Notion carries no pointer into
+# specs/failure-assessment.md, and its "Failure ID (old)" column is a
+# different numbering that does not line up with that file's Fx.y refs.
+#
+# `remediation` is likewise NOT sourced from Notion — the Failure Taxonomy
+# database has no remediation property and the row pages carry only trace
+# ids and review notes. Left as TODO rather than invented.
+#
+# No runs reference this type yet, so every facet value is `expected`.
+# `observed` is never stored; it is derived from runs.yaml at read time
+# (specs/taxonomy-structure.md §2.1). Note this makes `expected` slightly
+# generous: Notion's "Agent Type" mixes predicted and already-observed
+# agent types, and the distinction is lost until the runs are migrated.
+#
+# `{NN}` is the next free number in THIS file (ids are category-scoped, and
+# a category now lives in exactly one file, so a duplicate id is only
+# possible within this file).
+#
+# Template — copy/paste below, uncomment, and fill in:
+#
+# - id: FBK-NN
+#   category: state_feedback
+#   failure: Short Human-Readable Name
+#   description: >
+#     What the failure is and why it happens.
+#   assessment_ref: candidate   # or an Fx.y ref into failure-assessment.md
+#   facets:
+#     representation:
+#       expected: []            # subset of [text-only, vision-only, multimodal]
+#     platform:
+#       expected: []            # subset of [web, mobile, desktop]
+#     cause: software-side      # software-side | agent-side | joint
+#     stage: prediction         # prediction | execution | unclear
+#   remediation:
+#     fix: >
+#       The proposed software-/design-side change.
+#     helps: []                 # which representation(s) the fix unblocks
+
+
+- id: FBK-01
+  category: state_feedback
+  failure: No Terminal State / Unbounded Scroll
+  description: >
+    A list or results view gives no end-of-content signal, so the agent scrolls
+    indefinitely without registering it has reached (or can never reach) the
+    bottom.
+  facets:
+    representation:
+      expected: [text-only, vision-only]
+    platform:
+      expected: [web]
+    cause: software-side
+    stage: execution
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+# FBK-02 is NOT from Notion. It was created for the batch 03 desktop runs
+# (taxonomy/v3/task_runs_03.json, T-051) whose task->defect assignment named
+# it; `failure` is that assignment's name verbatim, and `description` and
+# every facet below are local judgements read off those runs, not
+# transcriptions. Reconcile it upstream — it has no Notion row and so no
+# "Failure ID (old)". Originally took slot 06 (rather than 02) so the four
+# F7.1..F7.4 drafts above could still take 02..05; the 2026-08-15 ID rename
+# renumbers it to FBK-02 regardless (evidenced types are numbered
+# sequentially first), so those four drafts, if promoted, land at FBK-03..06
+# instead.
+- id: FBK-02
+  category: state_feedback
+  failure: Validation Error Rendered Outside the A11y Tree
+  description: >
+    A form rejects its input and paints the reason as decoration — custom-drawn
+    text, a tooltip, a colour change — with nothing in the accessibility tree
+    and no announcement, so the tree still shows a submittable form. A
+    text-only agent sees no error at all and reads the failed submit as done.
+    The batch 03 evidence (T-051) has the vision-only agent failing too:
+    seeing the message rendered is not the same as attributing it to the field
+    it belongs to.
+  facets:
+    representation:
+      expected: [text-only, vision-only]
+    platform:
+      expected: [web, desktop]
+    cause: software-side
+    stage: execution
+  remediation:
+    fix: >
+      TODO — new type, no remediation agreed yet. Starting point: expose the
+      error in the tree and tie it to its field (aria-describedby /
+      aria-invalid, or the platform's equivalent), and raise a live-region
+      style notification when it appears.
+    helps: [text-only, vision-only]

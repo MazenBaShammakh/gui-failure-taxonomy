@@ -1,0 +1,183 @@
+# GUI Agent Failures — Perceptibility (v3)
+#
+# One file per category: every type in this file has
+# `category: perceptibility` and an id of the form `PRC-{NN}`. Which
+# platform(s) a type applies to is a facet (`facets.platform`), not a file —
+# that is the difference from v2, where files were mobile/web/desktop/
+# cross-platform and the category lived only inside each entry.
+#
+# SOURCE OF TRUTH: the Notion "Failure Taxonomy" database
+# (data source 8c07b803-cd9e-45da-a1bf-aeb809e1abbc), rows whose Category
+# relation points at "Perceptibility" (Category ID F1). Transcribed
+# 2026-07-23. `failure`, `description`, `representation`, `platform`,
+# `cause` and `stage` below are that table's values, not local judgements:
+#
+#   Failure Name    -> failure          (verbatim)
+#   Description     -> description      (verbatim)
+#   Agent Type      -> facets.representation.expected  (lowercased)
+#   Platform        -> facets.platform.expected        (lowercased)
+#   Cause           -> facets.cause                    (lowercased)
+#   Stage           -> facets.stage                    (lowercased)
+#
+# Two Notion columns have no home in this schema and are carried as
+# comments rather than dropped: "Failure ID (old)" and "Notes/Open
+# Questions". Three more are deliberately not carried here — "Example
+# Task(s)" and "Tasks" belong in runs.yaml (§3.2), and "Status"/"Source"
+# are Notion workflow metadata. For the record, all six rows are currently
+# Status: Needs Review.
+#
+# `assessment_ref` is NOT sourced from Notion. The table's "Failure ID
+# (old)" values (F1.1..F1.6) are Notion-internal ids of the form
+# {Category ID}.{n} and do NOT line up with the Fx.y refs in
+# specs/failure-assessment.md — e.g. Notion F1.6 is Low Color Contrast,
+# while failure-assessment.md F1.6 is "Target outside perceived field".
+# Since Notion carries no pointer into failure-assessment.md, every entry
+# below is `candidate`, with the Notion old id kept in a comment.
+#
+# `remediation` is likewise NOT sourced from Notion — the Failure Taxonomy
+# database has no remediation property and the row pages carry only trace
+# ids and review notes. Left as TODO rather than invented.
+#
+# No runs reference these types yet, so every facet value is `expected`.
+# `observed` is never stored; it is derived from runs.yaml at read time
+# (specs/taxonomy-structure.md §2.1). Note this makes `expected` slightly
+# generous: Notion's "Agent Type" mixes predicted and already-observed
+# agent types, and the distinction is lost until the runs are migrated.
+#
+# `{NN}` is the next free number in THIS file (ids are category-scoped, and
+# a category now lives in exactly one file, so a duplicate id is only
+# possible within this file).
+#
+# Template — copy/paste below, uncomment, and fill in:
+#
+# - id: PRC-NN
+#   category: perceptibility
+#   failure: Short Human-Readable Name
+#   description: >
+#     What the failure is and why it happens.
+#   assessment_ref: candidate   # or an Fx.y ref into failure-assessment.md
+#   facets:
+#     representation:
+#       expected: []            # subset of [text-only, vision-only, multimodal]
+#     platform:
+#       expected: []            # subset of [web, mobile, desktop]
+#     cause: software-side      # software-side | agent-side | joint
+#     stage: prediction         # prediction | execution | unclear
+#   remediation:
+#     fix: >
+#       The proposed software-/design-side change.
+#     helps: []                 # which representation(s) the fix unblocks
+
+
+- id: PRC-06
+  category: perceptibility
+  failure: Ghost Element in A11y Tree (False-Positive Detection)
+  description: >
+    The a11y tree contains bounding boxes for elements not currently rendered
+    on screen (virtualized lists, cached tabs), so the agent perceives and may
+    act on phantom targets.
+  facets:
+    representation:
+      expected: [text-only]
+    platform:
+      expected: [mobile]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+- id: PRC-01
+  category: perceptibility
+  failure: WebView Content Opaque to Native A11y Tree
+  description: >
+    A native app embeds web content in a WebView without wiring the virtual
+    view hierarchy, so the native a11y tree exposes it as one opaque node.
+  facets:
+    representation:
+      expected: [text-only]
+    platform:
+      expected: [mobile]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+- id: PRC-02
+  category: perceptibility
+  failure: Interactive Node Hidden by important-for-accessibility Flag
+  description: >
+    Developers flag subtrees as not-important-for-a11y to declutter screen
+    readers, which routinely also hides genuinely interactive controls from the
+    tree.
+  facets:
+    representation:
+      expected: [text-only]
+    platform:
+      expected: [mobile]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+- id: PRC-03
+  category: perceptibility
+  failure: System Dialog Outside App-Scoped A11y Tree
+  description: >
+    A runtime permission prompt or OS dialog renders in a separate system
+    window; an agent capturing only the foreground app's tree never receives
+    its nodes and stalls behind an invisible blocker.
+  facets:
+    representation:
+      expected: [text-only]
+    platform:
+      expected: [mobile]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+- id: PRC-04
+  category: perceptibility
+  failure: Inaccessible Element from DOM/A11y Tree (Unspecified Mechanism)
+  description: >
+    A visually rendered element has no corresponding actionable node in the
+    DOM/a11y tree. Catch-all -- use only when no more specific inaccesibility
+    mechanism applies.
+  facets:
+    representation:
+      expected: [text-only]
+    platform:
+      expected: [web]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+- id: PRC-05
+  category: perceptibility
+  failure: Low Color Contrast
+  description: >
+    Element boundaries are hard to distinguish from the background.
+    Empirically weak effect -- agents succeeded down to a 1.23 contrast ratio,
+    well below WCAG AA.
+  facets:
+    representation:
+      expected: [vision-only]
+    platform:
+      expected: [mobile, web]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []

@@ -121,7 +121,7 @@ To stop the app, go back to the terminal and press `Ctrl+C`.
 
 | Path                      | What it is                                                                 |
 | -------------------------- | --------------------------------------------------------------------------- |
-| `taxonomy/v3/F-*.yaml`      | The failure type definitions — one file per category (e.g. `F-PRC.yaml`).    |
+| `taxonomy/v3/*.yaml` (except `runs.yaml`) | The failure type definitions — one file per category (e.g. `PRC.yaml`). |
 | `taxonomy/v3/runs.yaml`      | The evidence log — every Task attempted, each with one or more Runs.          |
 | `app.py`                      | The Streamlit browser (`streamlit run app.py`).                               |
 | `ui_prototypes/`                | Alternative, standalone browser layouts.                                       |
@@ -135,18 +135,18 @@ To stop the app, go back to the terminal and press `Ctrl+C`.
 
 ### Adding a new failure type
 
-1. **Pick the file.** Determined by category: `perceptibility` → `F-PRC.yaml`,
-   `state_feedback` → `F-FBK.yaml`, and so on (see the category table above
+1. **Pick the file.** Determined by category: `perceptibility` → `PRC.yaml`,
+   `state_feedback` → `FBK.yaml`, and so on (see the category table above
    for all 9 codes). A type gets exactly one file regardless of how many
    platforms it applies to — platform is a *facet*, not a file.
-2. **Pick an ID.** `F-{CATEGORY}-{NNN}`, the next free number for that
+2. **Pick an ID.** `{CATEGORY}-{NNN}`, the next free number for that
    category:
    ```bash
-   grep "id: F-<CATEGORY>-" taxonomy/v3/F-<CATEGORY>.yaml
+   grep "id: <CATEGORY>-" taxonomy/v3/<CATEGORY>.yaml
    ```
 3. **Write the record:**
    ```yaml
-   - id: F-INS-04
+   - id: INS-04
      category: interaction_scope
      failure: Short Human-Readable Name
      description: >
@@ -186,7 +186,7 @@ To stop the app, go back to the terminal and press `Ctrl+C`.
          notes: >
            What actually happened — evidence, trace pointer, screenshot ref.
          failures:
-           - type: F-INS-04
+           - type: INS-04
              cause: software-side
              stage: prediction
    ```

@@ -1,0 +1,130 @@
+# GUI Agent Failures — Content Organization (v3)
+#
+# One file per category: every type in this file has
+# `category: content_organization` and an id of the form `CNT-{NN}`. Which
+# platform(s) a type applies to is a facet (`facets.platform`), not a file —
+# that is the difference from v2, where files were mobile/web/desktop/
+# cross-platform and the category lived only inside each entry.
+#
+# SOURCE OF TRUTH: the Notion "Failure Taxonomy" database
+# (data source 8c07b803-cd9e-45da-a1bf-aeb809e1abbc), rows whose Category
+# relation points at "Content Organization" (Category ID F6). Transcribed
+# 2026-07-23. `failure`, `description`, `representation`, `platform`,
+# `cause` and `stage` below are that table's values, not local judgements:
+#
+#   Failure Name    -> failure          (verbatim)
+#   Description     -> description      (verbatim)
+#   Agent Type      -> facets.representation.expected  (lowercased)
+#   Platform        -> facets.platform.expected        (lowercased)
+#   Cause           -> facets.cause                    (lowercased)
+#   Stage           -> facets.stage                    (lowercased)
+#
+# NOT the complete category: Notion holds a fourth Content Organization row,
+# "Unsupported-Language Content" (old id F6.4, Cause: Joint), whose
+# "Failure ID" cell contains the literal three-line string
+# "CNT-01\nCNT-02\nCNT-03" instead of an id of its own. It is left
+# out until that cell is fixed upstream — on the numbering below it would
+# be CNT-04.
+#
+# Notion columns not carried here: "Example Task(s)" and "Tasks" belong in
+# runs.yaml (§3.2); "Status"/"Source" are Notion workflow metadata (all
+# three rows are currently Status: Needs Review, Source: empty);
+# "Failure ID (old)" holds Notion-internal ids of the form
+# {Category ID}.{n} (F6.1..F6.3 here); "Notes/Open Questions" is empty on
+# all three rows.
+#
+# `assessment_ref` is omitted: Notion carries no pointer into
+# specs/failure-assessment.md, and its "Failure ID (old)" column is a
+# different numbering that does not line up with that file's Fx.y refs.
+#
+# `remediation` is likewise NOT sourced from Notion — the Failure Taxonomy
+# database has no remediation property and the row pages carry only trace
+# ids and review notes. Left as TODO rather than invented.
+#
+# No runs reference these types yet, so every facet value is `expected`.
+# `observed` is never stored; it is derived from runs.yaml at read time
+# (specs/taxonomy-structure.md §2.1). Note this makes `expected` slightly
+# generous: Notion's "Agent Type" mixes predicted and already-observed
+# agent types, and the distinction is lost until the runs are migrated.
+#
+# `{NN}` is the next free number in THIS file (ids are category-scoped, and
+# a category now lives in exactly one file, so a duplicate id is only
+# possible within this file).
+#
+# Template — copy/paste below, uncomment, and fill in:
+#
+# - id: CNT-NN
+#   category: content_organization
+#   failure: Short Human-Readable Name
+#   description: >
+#     What the failure is and why it happens.
+#   assessment_ref: candidate   # or an Fx.y ref into failure-assessment.md
+#   facets:
+#     representation:
+#       expected: []            # subset of [text-only, vision-only, multimodal]
+#     platform:
+#       expected: []            # subset of [web, mobile, desktop]
+#     cause: software-side      # software-side | agent-side | joint
+#     stage: prediction         # prediction | execution | unclear
+#   remediation:
+#     fix: >
+#       The proposed software-/design-side change.
+#     helps: []                 # which representation(s) the fix unblocks
+
+
+- id: CNT-01
+  category: content_organization
+  failure: Heading/Label Mismatch Breaks Grounding
+  description: >
+    The agent reaches the correct destination but the page heading/label
+    doesn't match the task's wording, so it doesn't recognize the content as
+    the answer.
+  facets:
+    representation:
+      expected: [text-only, vision-only]
+    platform:
+      expected: [web]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+- id: CNT-02
+  category: content_organization
+  failure: Cluttered List with Similar Items
+  description: >
+    The agent must choose from a long list of near-identical items -- it either
+    short-circuits on the first plausible item or stalls, repeatedly
+    reconsidering without progressing.
+  facets:
+    representation:
+      expected: [vision-only]
+    platform:
+      expected: [web]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+- id: CNT-03
+  category: content_organization
+  failure: Missing Filter or Sort Controls
+  description: >
+    A list page exposes no filter/sort controls, forcing a full scan; when the
+    default order doesn't match the task's implied ordering (e.g. latest), the
+    agent picks the wrong item.
+  facets:
+    representation:
+      expected: [text-only, vision-only]
+    platform:
+      expected: [web]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []

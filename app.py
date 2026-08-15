@@ -5,7 +5,7 @@ Data model (see specs/taxonomy-structure.md): failure Types are the spine,
 defined in every *.yaml of taxonomy/<folder>/ except runs.yaml. How those
 files are split is a per-folder convention the loader doesn't care about:
 v2 splits by platform ({mobile,web,cross-platform,desktop}.yaml), v3 splits
-by category (F-PRC.yaml, F-IDT.yaml, … one per category code). Real-world
+by category (PRC.yaml, IDT.yaml, … one per category code). Real-world
 evidence lives separately in taxonomy/<folder>/runs.yaml as Tasks, each
 holding one or more Runs, and each Run tags 1+ Types via a `failures[]`
 list (a many-to-many Run<->Type link). A type's `observed` facet values are
@@ -86,7 +86,7 @@ CATEGORY_CODES = {
 
 # v3 convention: one file per category, named for that category's code.
 # Empty for a v2-style folder, where file stems are platforms instead.
-CODE_TO_CATEGORY = {f"F-{code}": cat for cat, code in CATEGORY_CODES.items()}
+CODE_TO_CATEGORY = {code: cat for cat, code in CATEGORY_CODES.items()}
 
 RUNS_FILE = "runs.yaml"
 
@@ -132,7 +132,7 @@ def load_tasks(taxonomy_dir: Path, fingerprint: tuple[tuple[str, int], ...]) -> 
 
 def category_filename_mismatches(types: list[dict]) -> list[str]:
     """Types sitting in a category-named file (v3) whose `category` field
-    disagrees with the filename -- e.g. an entry pasted into F-PRC.yaml but
+    disagrees with the filename -- e.g. an entry pasted into PRC.yaml but
     left as `category: state_feedback`. `category` is kept in every entry so
     records stay self-contained, which means it can drift; this catches that.
     Returns [] for a v2-style folder, where filenames carry no category."""

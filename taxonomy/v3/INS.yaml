@@ -1,0 +1,165 @@
+# GUI Agent Failures — Interaction Scope (v3)
+#
+# One file per category: every type in this file has
+# `category: interaction_scope` and an id of the form `INS-{NN}`. Which
+# platform(s) a type applies to is a facet (`facets.platform`), not a file —
+# that is the difference from v2, where files were mobile/web/desktop/
+# cross-platform and the category lived only inside each entry.
+#
+# SOURCE OF TRUTH: the Notion "Failure Taxonomy" database
+# (data source 8c07b803-cd9e-45da-a1bf-aeb809e1abbc), rows whose Category
+# relation points at "Interaction Scope" (Category ID F9). Transcribed
+# 2026-07-23; INS-01..03 are the category's complete set in Notion.
+# INS-04 is not from Notion at all — see the comment above that entry.
+# `failure`, `description`, `representation`, `platform`, `cause` and
+# `stage` below are that table's values, not local judgements:
+#
+#   Failure Name    -> failure          (verbatim)
+#   Description     -> description      (verbatim)
+#   Agent Type      -> facets.representation.expected  (lowercased)
+#   Platform        -> facets.platform.expected        (lowercased)
+#   Cause           -> facets.cause                    (lowercased)
+#   Stage           -> facets.stage                    (lowercased)
+#
+# The three are deliberately close neighbours, separated by mechanism:
+# INS-01 is "can't dismiss it", INS-02 is "it swallows the click",
+# INS-03 is "it hides the target but clicks still land". Notion records
+# that boundary as an open note on INS-03.
+#
+# Notion columns not carried here: "Example Task(s)" and "Tasks" belong in
+# runs.yaml (§3.2); "Status"/"Source" are Notion workflow metadata (all
+# three rows are Status: "Added to Taxonomy (w/o obs)", Source: empty);
+# "Failure ID (old)" holds Notion-internal ids of the form
+# {Category ID}.{n} (F9.1..F9.3 here); "Notes/Open Questions" carries the
+# boundary note on INS-03 described above.
+#
+# `assessment_ref` is omitted: Notion carries no pointer into
+# specs/failure-assessment.md, and its "Failure ID (old)" column is a
+# different numbering that does not line up with that file's Fx.y refs.
+#
+# `remediation` is likewise NOT sourced from Notion — the Failure Taxonomy
+# database has no remediation property and the row pages carry only trace
+# ids and review notes. Left as TODO rather than invented.
+#
+# No runs reference these types yet, so every facet value is `expected`.
+# `observed` is never stored; it is derived from runs.yaml at read time
+# (specs/taxonomy-structure.md §2.1). Note this makes `expected` slightly
+# generous: Notion's "Agent Type" mixes predicted and already-observed
+# agent types, and the distinction is lost until the runs are migrated.
+#
+# `{NN}` is the next free number in THIS file (ids are category-scoped, and
+# a category now lives in exactly one file, so a duplicate id is only
+# possible within this file).
+#
+# Template — copy/paste below, uncomment, and fill in:
+#
+# - id: INS-NN
+#   category: interaction_scope
+#   failure: Short Human-Readable Name
+#   description: >
+#     What the failure is and why it happens.
+#   assessment_ref: candidate   # or an Fx.y ref into failure-assessment.md
+#   facets:
+#     representation:
+#       expected: []            # subset of [text-only, vision-only, multimodal]
+#     platform:
+#       expected: []            # subset of [web, mobile, desktop]
+#     cause: software-side      # software-side | agent-side | joint
+#     stage: prediction         # prediction | execution | unclear
+#   remediation:
+#     fix: >
+#       The proposed software-/design-side change.
+#     helps: []                 # which representation(s) the fix unblocks
+
+
+- id: INS-01
+  category: interaction_scope
+  failure: Blocking Modal, Tiny or No Close Affordance
+  description: >
+    A modal/popup intercepts interaction with the page but exposes no usable
+    close control (or one too small/late to find), so the agent ignores it and
+    acts on the obscured page, or stalls.
+  facets:
+    representation:
+      expected: [text-only, vision-only]
+    platform:
+      expected: [web]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+- id: INS-02
+  category: interaction_scope
+  failure: Invisible Clickable Overlay Captures Input
+  description: >
+    A transparent overlay (e.g. a sidebar backdrop) intercepts clicks meant for
+    elements beneath it; the vision-only agent has no signal the overlay exists
+    and keeps clicking captured coordinates.
+  facets:
+    representation:
+      expected: [vision-only]
+    platform:
+      expected: [web]
+    cause: software-side
+    stage: execution
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+- id: INS-03
+  category: interaction_scope
+  failure: Visual Occlusion by Non-Blocking Overlay
+  description: >
+    A modal or overlay visually covers the target element without capturing its
+    clicks, so a vision-only agent can't see the target even though it's still
+    structurally reachable.
+  facets:
+    representation:
+      expected: [vision-only]
+    platform:
+      expected: [web]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+# INS-04 is NOT from Notion. It was created for the batch 03 desktop runs
+# (taxonomy/v3/task_runs_03.json, T-053) whose task->defect assignment named
+# it; `failure` is that assignment's name verbatim, and `description` and
+# every facet below are local judgements read off those runs, not
+# transcriptions. Reconcile it upstream — it has no Notion row and so no
+# "Failure ID (old)".
+#
+# It is the inverse of the three above: they are cases where something the
+# agent should be able to reach is blocked, this is a case where something
+# the UI has declared unreachable is reached anyway.
+- id: INS-04
+  category: interaction_scope
+  failure: Blocked Window Still Invocable Through Automation
+  description: >
+    A modal disables its owner window for input, but the owner's controls stay
+    enabled in the automation tree and still honour programmatic invocation. A
+    text-only agent driving through the automation API acts on the blocked
+    window behind the modal; the call reports success while a human at the same
+    screen could not have made it, so the agent's model of the app silently
+    diverges from what was actually committed.
+  facets:
+    representation:
+      expected: [text-only]
+    platform:
+      expected: [desktop]
+    cause: software-side
+    stage: execution
+  remediation:
+    fix: >
+      TODO — new type, no remediation agreed yet. Starting point: make the
+      modal's block visible to the automation layer — mark the owner's
+      controls disabled (or the owner window itself not-enabled) for the
+      modal's lifetime, rather than gating input only at the message pump.
+    helps: [text-only]

@@ -1,0 +1,128 @@
+# GUI Agent Failures — Structural Consistency (v3)
+#
+# One file per category: every type in this file has
+# `category: structural_consistency` and an id of the form `STR-{NN}`. Which
+# platform(s) a type applies to is a facet (`facets.platform`), not a file —
+# that is the difference from v2, where files were mobile/web/desktop/
+# cross-platform and the category lived only inside each entry.
+#
+# SOURCE OF TRUTH: the Notion "Failure Taxonomy" database
+# (data source 8c07b803-cd9e-45da-a1bf-aeb809e1abbc), rows whose Category
+# relation points at "Structural Consistency" (Category ID F3). Transcribed
+# 2026-07-23. `failure`, `description`, `representation`, `platform`,
+# `cause` and `stage` below are that table's values, not local judgements:
+#
+#   Failure Name    -> failure          (verbatim)
+#   Description     -> description      (verbatim)
+#   Agent Type      -> facets.representation.expected  (lowercased)
+#   Platform        -> facets.platform.expected        (lowercased)
+#   Cause           -> facets.cause                    (lowercased)
+#   Stage           -> facets.stage                    (lowercased)
+#
+# NOT the complete category: Notion holds three further Structural
+# Consistency rows, all Status: Draft with no "Failure ID", no Platform and
+# no Agent Type assigned, so there is nothing to key them on yet —
+# "Visual Layout Overlaps DOM Order" (old id F3.2), "Popup Not Represented
+# in DOM Hierarchy" (F3.3) and "DOM-Visible but Visually Hidden Element"
+# (F3.4). Under the old F-prefixed numbering they would have taken slots 02
+# through 04 once numbered and faceted upstream; under the current
+# (dropped-prefix, evidence-first) scheme they would be appended after the
+# two evidenced types above instead, i.e. STR-03 through STR-05, not the
+# STR-02 slot the second evidenced type now occupies.
+#
+# Notion columns not carried here: "Example Task(s)" and "Tasks" belong in
+# runs.yaml (§3.2); "Status"/"Source" are Notion workflow metadata (this
+# row is Status: "Added to Taxonomy (w/o obs)", Source: empty);
+# "Failure ID (old)" holds Notion-internal ids of the form
+# {Category ID}.{n} (F3.1 here); "Notes/Open Questions" is empty.
+#
+# `assessment_ref` is omitted: Notion carries no pointer into
+# specs/failure-assessment.md, and its "Failure ID (old)" column is a
+# different numbering that does not line up with that file's Fx.y refs.
+#
+# `remediation` is likewise NOT sourced from Notion — the Failure Taxonomy
+# database has no remediation property and the row pages carry only trace
+# ids and review notes. Left as TODO rather than invented.
+#
+# No runs reference this type yet, so every facet value is `expected`.
+# `observed` is never stored; it is derived from runs.yaml at read time
+# (specs/taxonomy-structure.md §2.1). Note this makes `expected` slightly
+# generous: Notion's "Agent Type" mixes predicted and already-observed
+# agent types, and the distinction is lost until the runs are migrated.
+#
+# `{NN}` is the next free number in THIS file (ids are category-scoped, and
+# a category now lives in exactly one file, so a duplicate id is only
+# possible within this file).
+#
+# Template — copy/paste below, uncomment, and fill in:
+#
+# - id: STR-NN
+#   category: structural_consistency
+#   failure: Short Human-Readable Name
+#   description: >
+#     What the failure is and why it happens.
+#   assessment_ref: candidate   # or an Fx.y ref into failure-assessment.md
+#   facets:
+#     representation:
+#       expected: []            # subset of [text-only, vision-only, multimodal]
+#     platform:
+#       expected: []            # subset of [web, mobile, desktop]
+#     cause: software-side      # software-side | agent-side | joint
+#     stage: prediction         # prediction | execution | unclear
+#   remediation:
+#     fix: >
+#       The proposed software-/design-side change.
+#     helps: []                 # which representation(s) the fix unblocks
+
+
+- id: STR-01
+  category: structural_consistency
+  failure: Recycled-View Stale Accessible Name
+  description: >
+    When a recycled row view is rebound to new data, its visible text updates
+    but its accessible name doesn't, so a text-only agent can't ground the
+    target by title.
+  facets:
+    representation:
+      expected: [text-only]
+    platform:
+      expected: [web, mobile]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — no remediation recorded in Notion.
+    helps: []
+
+# STR-02 is NOT from Notion. It was created for the batch 03 desktop runs
+# (taxonomy/v3/task_runs_03.json, T-050) whose task->defect assignment named
+# it; `failure` is that assignment's name verbatim, and `description` and
+# every facet below are local judgements read off those runs, not
+# transcriptions. Reconcile it upstream — it has no Notion row and so no
+# "Failure ID (old)". Originally took slot 05 (rather than 02) to leave
+# 02..04 reserved for the three drafts listed above; the 2026-08-15 ID
+# rename renumbers it to STR-02 regardless (evidenced types are numbered
+# sequentially first), so those three drafts, if promoted, land at STR-03..05
+# instead.
+- id: STR-02
+  category: structural_consistency
+  failure: Accessible Name Contradicts Visible Label
+  description: >
+    A control's accessible name (UI Automation Name / aria-label) names a
+    different thing than the label rendered on it, so the two representations
+    disagree about what the control is. A text-only agent grounds on the
+    accessible name and acts on — or rules out — the wrong control, while a
+    vision-only agent reading the rendered label is unaffected.
+  facets:
+    representation:
+      expected: [text-only]
+    platform:
+      expected: [web, mobile, desktop]
+    cause: software-side
+    stage: prediction
+  remediation:
+    fix: >
+      TODO — new type, no remediation agreed yet. Starting point: derive the
+      accessible name from the visible label rather than authoring the two
+      independently, and assert their equality in the widget's tests.
+    helps: [text-only]

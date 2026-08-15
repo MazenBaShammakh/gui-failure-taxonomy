@@ -45,14 +45,14 @@
 # batch, not from a Notion query — same TASK-level granularity and the same
 # caveat above. Four of the assigned types did not exist in the catalogue and
 # were created from that assignment alone (see each file's header for what is
-# and is not sourced from Notion): F-STR-05, F-FBK-06, F-INA-01, F-INS-04.
-# One assigned id, 2895 (F-STR-01), has no attempts in task_runs_03.json and
+# and is not sourced from Notion): STR-02, FBK-02, INA-01, INS-04.
+# One assigned id, 2895 (STR-01), has no attempts in task_runs_03.json and
 # so has no entry here yet. Batch 03 contains no `aborted` attempts; every
 # attempt in it is recorded.
 #
 # Batch 03 is also the first evidence on `desktop` for types whose
-# `facets.platform.expected` reads `[web]` (F-TMP-02, F-PRC-05, F-IDT-01,
-# F-IDT-03, F-NAV-02). That is not a contradiction to fix in the type files:
+# `facets.platform.expected` reads `[web]` (TMP-02, PRC-04, IDT-01,
+# IDT-03, NAV-02). That is not a contradiction to fix in the type files:
 # `expected` is the Notion-sourced PREDICTION and `observed` is derived from
 # these runs at read time (specs/taxonomy-structure.md §2.1). Widen
 # `expected` upstream in Notion if the prediction itself is meant to change.
@@ -96,13 +96,16 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: the WebView accessibility bridge is wired, so the
+        card-application form's Full name, Email address, and Submit
+        controls are each exposed as individual nodes in the a11y tree; the
+        text-only agent locates and fills every field directly and submits
+        successfully. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2763.
       failures:
-        - type: F-PRC-02
+        - type: PRC-01
           cause: software-side
           stage: prediction
     - id: T-001-b
@@ -111,14 +114,17 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: the WebView accessibility bridge is disabled, collapsing the
+        whole embedded form into one opaque node with no child fields; the
+        text-only agent cannot detect the Full name/Email address inputs or
+        the Submit button and cannot complete the application. Harness
+        facts: agent=mobilerun,
         model=gemini-flash-latest, steps=9, stop_reason=user_failure,
         status=human_failure, app_variant=faulty, error="Failure flagged by
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2763.
       failures:
-        - type: F-PRC-02
+        - type: PRC-01
           cause: software-side
           stage: prediction
     - id: T-001-c
@@ -127,13 +133,16 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: the vision-only agent reads the rendered WebView content
+        directly from pixels rather than the a11y tree, so the collapsed
+        opaque node has no effect on it — it locates and fills the form
+        fields visually and submits successfully. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=9, status=success,
         app_variant=faulty,
         trace=mobilerun\raw\gui-failure-suite-mobile-2763.
       failures:
-        - type: F-PRC-02
+        - type: PRC-01
           cause: software-side
           stage: prediction
 
@@ -149,13 +158,15 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: the toolbar action cluster holding the Favorite button is
+        exposed normally in the a11y tree, so the text-only agent opens
+        Photo details and favorites the photo without incident. Harness
+        facts: agent=mobilerun,
         model=gemini-flash-latest, steps=4, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2764.
       failures:
-        - type: F-PRC-03
+        - type: PRC-02
           cause: software-side
           stage: prediction
     - id: T-002-b
@@ -164,14 +175,18 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: the toolbar action cluster is marked not-important-for-a11y,
+        withdrawing its whole subtree — including the Favorite button —
+        from the tree. The agent opens Photo details, taps an unlabelled
+        emoji-glyph node in place of the real cluster, then swipes searching
+        for the action before the run ends without ever favoriting the
+        photo. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=7, stop_reason=user_failure,
         status=human_failure, app_variant=faulty, error="Failure flagged by
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2764.
       failures:
-        - type: F-PRC-03
+        - type: PRC-02
           cause: software-side
           stage: prediction
     - id: T-002-c
@@ -180,13 +195,16 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: same visually-identical faulty rendering as the
+        task's other vision-only runs; this attempt terminates after a
+        single step without reaching a resolution, too short to
+        characterize the failure mode beyond the harness-recorded outcome.
+        Harness facts: agent=mobilerun,
         model=gemini-3-pro-preview, steps=1, status=failure,
         app_variant=faulty,
         trace=mobilerun\raw\gui-failure-suite-mobile-2764.
       failures:
-        - type: F-PRC-03
+        - type: PRC-02
           cause: software-side
           stage: prediction
     - id: T-002-d
@@ -195,12 +213,14 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun, model=gemini-pro,
+        Faulty, vision-only: run aborted with a harness/runtime error before
+        any step was recorded (steps=0) — an infrastructure failure, not
+        behavioral evidence of how the agent handled the faulty screen.
+        Harness facts: agent=mobilerun, model=gemini-pro,
         steps=0, status=error, app_variant=faulty,
         trace=mobilerun\raw\gui-failure-suite-mobile-2764.
       failures:
-        - type: F-PRC-03
+        - type: PRC-02
           cause: software-side
           stage: prediction
     - id: T-002-e
@@ -209,13 +229,19 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun, model=gemini-2.5-pro,
+        Faulty, vision-only, most informative run for this task: the agent
+        does tap the visible heart icon and favorites the photo, but then
+        cannot find a separate "Photo details" affordance and
+        perception-loops on a three-dot menu it keeps mis-tapping at the
+        same coordinates; the run ends without ever calling complete(), so
+        despite favoriting the photo it does not finish the task. No
+        vision-only run on this task self-reports success. Harness facts:
+        agent=mobilerun, model=gemini-2.5-pro,
         steps=10, stop_reason=user_failure, status=human_failure,
         app_variant=faulty, error="Failure flagged by human observer
         (pressed 'f')", trace=mobilerun\raw\gui-failure-suite-mobile-2764.
       failures:
-        - type: F-PRC-03
+        - type: PRC-02
           cause: software-side
           stage: prediction
 
@@ -231,13 +257,15 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: the location-permission system dialog is exposed in the
+        app-scoped a11y tree, so the text-only agent perceives it directly
+        and grants the permission, then centers the map. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2765.
       failures:
-        - type: F-PRC-04
+        - type: PRC-03
           cause: software-side
           stage: prediction
     - id: T-003-b
@@ -246,14 +274,18 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: the permission dialog renders identically but its node is
+        withdrawn from the a11y tree the agent queries. It repeatedly
+        re-taps "Use current location" and waits for the permission dialog
+        to "appear," never perceiving that it is already blocking the
+        screen; the run ends with no completion call. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=9, stop_reason=user_failure,
         status=human_failure, app_variant=faulty, error="Failure flagged by
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2765.
       failures:
-        - type: F-PRC-04
+        - type: PRC-03
           cause: software-side
           stage: prediction
     - id: T-003-c
@@ -262,13 +294,16 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: the vision-only agent sees the permission dialog rendered on
+        screen regardless of its a11y-tree status and answers it the way a
+        human would, then centers the map successfully — the a11y omission
+        that blocks the text-only agent has no effect on it. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=faulty,
         trace=mobilerun\raw\gui-failure-suite-mobile-2765.
       failures:
-        - type: F-PRC-04
+        - type: PRC-03
           cause: software-side
           stage: prediction
 
@@ -284,13 +319,15 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: the text-only agent grounds on the Quick Actions tiles'
+        a11y labels, which carry full label/role/bounds regardless of
+        rendered contrast, and taps "Pay Bills" without issue. Harness
+        facts: agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2768.
       failures:
-        - type: F-PRC-06
+        - type: PRC-05
           cause: software-side
           stage: prediction
     - id: T-004-b
@@ -299,13 +336,16 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: label/background contrast on the tiles drops well below
+        WCAG AA, but the text-only agent still grounds on the a11y label
+        and role rather than rendered pixels, so the lowered contrast has
+        no effect — it taps "Pay Bills" and succeeds identically to
+        baseline. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=faulty,
         trace=mobilerun\raw\gui-failure-suite-mobile-2768.
       failures:
-        - type: F-PRC-06
+        - type: PRC-05
           cause: software-side
           stage: prediction
     - id: T-004-c
@@ -314,13 +354,15 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline, vision-only: full-contrast tile grid, the agent navigates
+        to Quick Actions and taps "Pay Bills" without difficulty (one
+        incidental mis-tap along the way that it recovers from). Harness
+        facts: agent=mobilerun,
         model=gemini-flash-latest, steps=7, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2768.
       failures:
-        - type: F-PRC-06
+        - type: PRC-05
           cause: software-side
           stage: prediction
     - id: T-004-d
@@ -329,13 +371,18 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: the label/background contrast on the tile grid
+        drops to roughly 1.06:1 (well below the 3:1 WCAG AA floor). The
+        agent mis-taps the wrong card once (step 4) but recovers, locates
+        "Pay Bills" from the same low-contrast grid, and self-reports
+        success — the hypothesis that low contrast would defeat a
+        vision-only agent the way it would a human is not borne out. Harness
+        facts: agent=mobilerun,
         model=gemini-flash-latest, steps=6, status=success,
         app_variant=faulty,
         trace=mobilerun\raw\gui-failure-suite-mobile-2768.
       failures:
-        - type: F-PRC-06
+        - type: PRC-05
           cause: software-side
           stage: prediction
     - id: T-004-e
@@ -344,13 +391,15 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only, second run: reaches the same self-reported
+        success as run T-004-d in fewer steps and without the intervening
+        mis-tap, corroborating that the low-contrast tiles do not defeat the
+        vision-only agent. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=faulty,
         trace=mobilerun\raw\gui-failure-suite-mobile-2768.
       failures:
-        - type: F-PRC-06
+        - type: PRC-05
           cause: software-side
           stage: prediction
 
@@ -371,10 +420,10 @@
         status=error, error="Timed out after 900s (runner killed by
         orchestrator)", trace=seeact\raw\mind2web-web-0980.
       failures:
-        - type: F-IDT-02
+        - type: IDT-02
           cause: software-side
           stage: prediction
-        - type: F-PRC-05
+        - type: PRC-04
           cause: software-side
           stage: prediction
     - id: T-005-b
@@ -388,10 +437,10 @@
         steps=15, stop_reason=step_cap, status=failure,
         trace=seeact\raw\mind2web-web-0980.
       failures:
-        - type: F-IDT-02
+        - type: IDT-02
           cause: software-side
           stage: prediction
-        - type: F-PRC-05
+        - type: PRC-04
           cause: software-side
           stage: prediction
 
@@ -407,13 +456,14 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: task rows carry stable, correctly-bound accessible names,
+        so the agent scrolls to and marks "Renew passport" as done without
+        difficulty. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=6, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2766.
       failures:
-        - type: F-STR-01
+        - type: STR-01
           cause: software-side
           stage: prediction
     - id: T-006-b
@@ -422,13 +472,17 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: the recycled-row pool means a rebound row's accessible name
+        can lag its visible text once the list virtualizes, but in this run
+        the agent still scrolls to and correctly marks "Renew passport" as
+        done — the same defect produces a non-deterministic outcome across
+        runs (contrast the retry loop in run T-006-d on the same variant).
+        Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=6, status=success,
         app_variant=faulty,
         trace=mobilerun\raw\gui-failure-suite-mobile-2766.
       failures:
-        - type: F-STR-01
+        - type: STR-01
           cause: software-side
           stage: prediction
     - id: T-006-c
@@ -437,13 +491,15 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline, second replicate run: task rows carry stable accessible
+        names; the agent again marks "Renew passport" as done without
+        difficulty, confirming baseline behavior. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=6, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2766.
       failures:
-        - type: F-STR-01
+        - type: STR-01
           cause: software-side
           stage: prediction
     - id: T-006-d
@@ -452,14 +508,18 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, retry loop kept: the recycled row occupying "Renew
+        passport"'s slot keeps the accessible name of whichever task first
+        held that slot ("Call dentist" in this rendering), so the agent
+        scrolls down repeatedly — four swipe attempts — never finding a row
+        whose accessible name matches the target, and the run ends with no
+        matching row ever clicked. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=8, stop_reason=user_failure,
         status=human_failure, app_variant=faulty, error="Failure flagged by
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2766.
       failures:
-        - type: F-STR-01
+        - type: STR-01
           cause: software-side
           stage: prediction
     - id: T-006-e
@@ -468,13 +528,15 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: the agent grounds on the correctly-updated
+        rendered text rather than the stale accessible name, so the
+        recycled-name defect has no effect on it — it scrolls to and marks
+        "Renew passport" as done. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=8, status=success,
         app_variant=faulty,
         trace=mobilerun\raw\gui-failure-suite-mobile-2766.
       failures:
-        - type: F-STR-01
+        - type: STR-01
           cause: software-side
           stage: prediction
 
@@ -495,7 +557,7 @@
         steps=10, stop_reason=success, status=success,
         trace=seeact\raw\mind2web-web-1013.
       failures:
-        - type: F-INS-01
+        - type: INS-01
           cause: software-side
           stage: prediction
 
@@ -517,7 +579,7 @@
         flagged by human observer (pressed 'f')",
         trace=seeact\raw\mind2web-web-1052.
       failures:
-        - type: F-TMP-04
+        - type: TMP-03
           cause: agent-side
           stage: prediction
 
@@ -538,7 +600,7 @@
         steps=3, stop_reason=error, status=error,
         trace=seeact\raw\mind2web-web-1007.
       failures:
-        - type: F-TMP-02
+        - type: TMP-02
           cause: joint
           stage: execution
     - id: T-009-b
@@ -552,7 +614,7 @@
         steps=3, stop_reason=error, status=error,
         trace=seeact\raw\mind2web-web-1007.
       failures:
-        - type: F-TMP-02
+        - type: TMP-02
           cause: joint
           stage: execution
 
@@ -591,7 +653,7 @@
         steps=4, stop_reason=error, status=error,
         trace=seeact\raw\mind2web-web-1030.
       failures:
-        - type: F-FBK-01
+        - type: FBK-01
           cause: software-side
           stage: execution
     - id: T-011-b
@@ -605,7 +667,7 @@
         steps=3, stop_reason=error, status=error,
         trace=seeact\raw\mind2web-web-1030.
       failures:
-        - type: F-FBK-01
+        - type: FBK-01
           cause: software-side
           stage: execution
     - id: T-011-c
@@ -620,7 +682,7 @@
         error="Failure flagged by human observer (pressed 'f')",
         trace=seeact\raw\mind2web-web-1030.
       failures:
-        - type: F-FBK-01
+        - type: FBK-01
           cause: software-side
           stage: execution
 
@@ -636,12 +698,16 @@
       platform: web
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=seeact, model=gemini-flash-latest,
+        The results list for the fishing-class search contains no filter or
+        sort controls, and the page offers no end-of-content signal; the
+        agent scrolls through the results searching for a match with no way
+        to tell whether more relevant entries remain, and the run ends in a
+        runner-level error rather than a self-reported answer. Harness
+        facts: agent=seeact, model=gemini-flash-latest,
         steps=6, stop_reason=error, status=error,
         trace=seeact\raw\mind2web-web-1001.
       failures:
-        - type: F-FBK-01
+        - type: FBK-01
           cause: software-side
           stage: execution
     - id: T-012-b
@@ -650,12 +716,15 @@
       platform: web
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=seeact, model=gemini-flash-latest,
+        Same unfiltered, unsorted results list as run T-012-a; this attempt
+        continues scrolling for substantially longer (17 vs. 6 steps)
+        before also ending in a runner-level error without reaching a
+        terminal state or a self-reported answer. Harness facts:
+        agent=seeact, model=gemini-flash-latest,
         steps=17, stop_reason=error, status=error,
         trace=seeact\raw\mind2web-web-1001.
       failures:
-        - type: F-FBK-01
+        - type: FBK-01
           cause: software-side
           stage: execution
 
@@ -676,7 +745,7 @@
         steps=15, stop_reason=error, status=error,
         trace=seeact\raw\mind2web-web-0991.
       failures:
-        - type: F-CNT-02
+        - type: CNT-02
           cause: software-side
           stage: prediction
 
@@ -698,7 +767,7 @@
         error="Failure flagged by human observer (pressed 'f')",
         trace=seeact\raw\mind2web-web-1037.
       failures:
-        - type: F-CNT-01
+        - type: CNT-01
           cause: software-side
           stage: prediction
 
@@ -720,7 +789,7 @@
         error="Failure flagged by human observer (pressed 'f')",
         trace=seeact\raw\mind2web-web-1019.
       failures:
-        - type: F-NAV-01
+        - type: NAV-01
           cause: software-side
           stage: prediction
 
@@ -741,7 +810,7 @@
         steps=5, stop_reason=error, status=error,
         trace=seeact\raw\mind2web-web-1034.
       failures:
-        - type: F-NAV-01
+        - type: NAV-01
           cause: software-side
           stage: prediction
     - id: T-016-b
@@ -755,7 +824,7 @@
         steps=8, stop_reason=success, status=success,
         trace=seeact\raw\mind2web-web-1034.
       failures:
-        - type: F-NAV-01
+        - type: NAV-01
           cause: software-side
           stage: prediction
 
@@ -808,13 +877,14 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: the agent grounds on each swatch's accessible name, which
+        states its true colour regardless of rendering, and selects Green
+        without issue. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2767.
       failures:
-        - type: F-IDT-05
+        - type: IDT-05
           cause: software-side
           stage: prediction
     - id: T-019-b
@@ -823,13 +893,15 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: the OS-level grayscale transform recolours every rendered
+        pixel, but the underlying accessible name for each swatch still
+        states its true colour, so the text-only agent is unaffected and
+        selects Green normally. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=faulty,
         trace=mobilerun\raw\gui-failure-suite-mobile-2767.
       failures:
-        - type: F-IDT-05
+        - type: IDT-05
           cause: software-side
           stage: prediction
     - id: T-019-c
@@ -838,13 +910,14 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline, vision-only: colours render normally, so the agent
+        visually identifies and selects the green swatch without
+        difficulty. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=7, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2767.
       failures:
-        - type: F-IDT-05
+        - type: IDT-05
           cause: software-side
           stage: prediction
     - id: T-019-d
@@ -853,14 +926,19 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: the grayscale filter renders every swatch as
+        an indistinguishable shade of gray. The agent explicitly reasons
+        that it is guessing ("tap on the first colour circle to see if it
+        selects the green colour") and taps a swatch at random; a human
+        observer flags the run as a failure immediately afterward, before
+        the agent itself issues any completion call. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=5, stop_reason=user_failure,
         status=human_failure, app_variant=faulty, error="Failure flagged by
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2767.
       failures:
-        - type: F-IDT-05
+        - type: IDT-05
           cause: software-side
           stage: prediction
 
@@ -876,12 +954,16 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        The Play Store search for "Pandora" returns multiple listings with
+        varied names, and the benchmark task gives no identifier to
+        disambiguate the intended one; the agent installs a different
+        Pandora-named app than the benchmark's target. This is an ambiguous
+        task-definition issue (Android in the Wild), not a software defect
+        in the store UI. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=10, status=failure,
         trace=mobilerun\raw\aitw-mobile-0042.
       failures:
-        - type: F-IDT-04
+        - type: IDT-04
           cause: agent-side
           stage: prediction
     - id: T-020-b
@@ -890,13 +972,16 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Same ambiguous-target mechanism as run T-020-a: multiple Pandora-named
+        listings appear in the Play Store search results with no clear
+        identifier of the benchmark's intended app; the vision-only agent
+        likewise installs the wrong one, and a human observer flags the run
+        as a failure. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=25, stop_reason=user_failure,
         status=human_failure, error="Failure flagged by human observer
         (pressed 'f')", trace=mobilerun\raw\aitw-mobile-0042.
       failures:
-        - type: F-IDT-04
+        - type: IDT-04
           cause: agent-side
           stage: prediction
 
@@ -912,12 +997,20 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        The task asks for "Twitter" settings (benchmark predates the X
+        rebrand). The agent searches "Twitter", then reasons explicitly
+        that Twitter is now "X" and searches for "X" instead (step 6), but
+        never inspects that search's results — it abandons the filtered
+        search and reverts to manually scrolling the full, unfiltered
+        alphabetical app list, then self-terminates at step 15 with
+        complete(success=false), concluding "the Twitter (or X) app is not
+        installed." This is an agent-side entity-grounding failure, not a
+        software defect: the app is present, but the agent never verifies
+        its own "X" search. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=15, status=failure,
         trace=mobilerun\raw\aitw-mobile-0068.
       failures:
-        - type: F-IDT-04
+        - type: IDT-04
           cause: agent-side
           stage: prediction
     - id: T-021-b
@@ -926,13 +1019,19 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Same "Twitter"/"X" grounding gap as run T-021-a, playing out over a
+        much longer, non-terminating trajectory: the agent repeatedly taps
+        the search icon with no visible effect, then oscillates
+        scroll-down/scroll-up over the same region of the alphabetical app
+        list hunting for "Twitter" or the letter "T", never settling on the
+        "X" rebrand for most of the run; it never reaches a terminal state
+        and is stopped by a human observer after 31 steps. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=31, stop_reason=user_failure,
         status=human_failure, error="Failure flagged by human observer
         (pressed 'f')", trace=mobilerun\raw\aitw-mobile-0068.
       failures:
-        - type: F-IDT-04
+        - type: IDT-04
           cause: agent-side
           stage: prediction
 
@@ -948,13 +1047,15 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: the company name is styled as a hyperlink and its a11y
+        node carries the tap action under the label "Acme Corp company
+        profile"; the text-only agent clicks it and opens the profile.
+        Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=4, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2860.
       failures:
-        - type: F-IDT-02
+        - type: IDT-02
           cause: software-side
           stage: prediction
     - id: T-022-b
@@ -963,12 +1064,16 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: the company name is styled as plain static text (no visual
+        affordance) and its label shortens to plain "Acme Corp", but its
+        a11y node still carries the tap action — the text-only agent clicks
+        whatever element exposes that action regardless of label wording or
+        rendered styling, so it succeeds identically to baseline. Harness
+        facts: agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2860.
       failures:
-        - type: F-IDT-02
+        - type: IDT-02
           cause: software-side
           stage: prediction
     - id: T-022-c
@@ -977,12 +1082,14 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, second replicate run: same mechanism as run T-022-b — the
+        text-only agent grounds on the a11y tap action rather than the
+        static-looking rendered label and succeeds again. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2860.
       failures:
-        - type: F-IDT-02
+        - type: IDT-02
           cause: software-side
           stage: prediction
     - id: T-022-d
@@ -991,12 +1098,15 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: single-step run under the same
+        no-visual-affordance rendering (company name painted as static
+        metadata text) as the task's other vision-only faulty runs; too
+        short to characterize the failure mode beyond the harness-recorded
+        outcome. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=1, status=failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2860.
       failures:
-        - type: F-IDT-02
+        - type: IDT-02
           cause: software-side
           stage: prediction
     - id: T-022-e
@@ -1005,12 +1115,13 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only, second single-step run: same brief,
+        inconclusive pattern as run T-022-d. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=1, status=failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2860.
       failures:
-        - type: F-IDT-02
+        - type: IDT-02
           cause: software-side
           stage: prediction
     - id: T-022-f
@@ -1019,14 +1130,23 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only, most informative run: with the company name
+        rendered as plain static text and no visual affordance cue, the
+        agent repeatedly guesses at nearby coordinates ("I will tap on
+        'Acme Corp'...", "I will tap on the blue segment...", "I will click
+        directly on the 'Acme Corp' text link...") without ever opening the
+        profile; the log ends mid-response with no self-reported
+        completion, and a human observer stops and grades the run a
+        failure. Neither this nor the task's baseline vision-only run
+        contains an explicit agent-issued success/failure message — both
+        outcomes are the human grader's post-hoc judgment of the final
+        screen state. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, stop_reason=user_failure,
         status=human_failure, app_variant=faulty, error="Failure flagged by
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2860.
       failures:
-        - type: F-IDT-02
+        - type: IDT-02
           cause: software-side
           stage: prediction
     - id: T-022-g
@@ -1035,14 +1155,18 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline, vision-only: the company name is styled as a hyperlink,
+        giving the agent a clear visual affordance cue, and it opens the
+        Acme Corp company profile; as with run T-022-f the agent's log
+        contains no explicit self-reported completion message, and the
+        success grading comes from a human observer's judgment of the
+        final screen state. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, stop_reason=user_success,
         status=human_success, app_variant=baseline, error="Success flagged by
         human observer (pressed 'd')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2860.
       failures:
-        - type: F-IDT-02
+        - type: IDT-02
           cause: software-side
           stage: prediction
 
@@ -1064,7 +1188,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2865.
       failures:
-        - type: F-IDT-05
+        - type: IDT-05
           cause: software-side
           stage: prediction
     - id: T-023-b
@@ -1078,7 +1202,7 @@
         model=gemini-flash-latest, steps=8, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2865.
       failures:
-        - type: F-IDT-05
+        - type: IDT-05
           cause: software-side
           stage: prediction
     - id: T-023-c
@@ -1092,7 +1216,7 @@
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2865.
       failures:
-        - type: F-IDT-05
+        - type: IDT-05
           cause: software-side
           stage: prediction
     - id: T-023-d
@@ -1108,7 +1232,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2865.
       failures:
-        - type: F-IDT-05
+        - type: IDT-05
           cause: software-side
           stage: prediction
 
@@ -1130,7 +1254,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2866.
       failures:
-        - type: F-IDT-05
+        - type: IDT-05
           cause: software-side
           stage: prediction
     - id: T-024-b
@@ -1144,7 +1268,7 @@
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2866.
       failures:
-        - type: F-IDT-05
+        - type: IDT-05
           cause: software-side
           stage: prediction
     - id: T-024-c
@@ -1160,7 +1284,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2866.
       failures:
-        - type: F-IDT-05
+        - type: IDT-05
           cause: software-side
           stage: prediction
     - id: T-024-d
@@ -1174,7 +1298,7 @@
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2866.
       failures:
-        - type: F-IDT-05
+        - type: IDT-05
           cause: software-side
           stage: prediction
     - id: T-024-e
@@ -1190,7 +1314,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2866.
       failures:
-        - type: F-IDT-05
+        - type: IDT-05
           cause: software-side
           stage: prediction
 
@@ -1206,13 +1330,15 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: the App Privacy panel's data-collection items, rendered
+        inside an embedded WebView, are exposed to the a11y tree, so the
+        text-only agent reads them and answers what data the app collects.
+        Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=4, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2867.
       failures:
-        - type: F-PRC-02
+        - type: PRC-01
           cause: software-side
           stage: prediction
     - id: T-025-b
@@ -1221,14 +1347,17 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: the WebView collapses into a single opaque node with no
+        semantic representation, so the data-collection items it holds are
+        withdrawn from the a11y tree; the text-only agent cannot read the
+        disclosed-data list and cannot answer the question. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, stop_reason=user_failure,
         status=human_failure, app_variant=faulty, error="Failure flagged by
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2867.
       failures:
-        - type: F-PRC-02
+        - type: PRC-01
           cause: software-side
           stage: prediction
     - id: T-025-c
@@ -1237,14 +1366,16 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, second replicate run: same opaque-WebView mechanism as run
+        T-025-b — the text-only agent has no a11y access to the
+        data-collection list and fails again. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, stop_reason=user_failure,
         status=human_failure, app_variant=faulty, error="Failure flagged by
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2867.
       failures:
-        - type: F-PRC-02
+        - type: PRC-01
           cause: software-side
           stage: prediction
     - id: T-025-d
@@ -1253,12 +1384,14 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: the agent reads the WebView's rendered content
+        directly from pixels rather than the (opaque) a11y tree, so the
+        collapsed node has no effect on it and it succeeds. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=4, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2867.
       failures:
-        - type: F-PRC-02
+        - type: PRC-01
           cause: software-side
           stage: prediction
 
@@ -1274,13 +1407,18 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: on this variant the WebView bridge is wired and the
+        gift-card form's fields are exposed in the a11y tree (see the
+        successful baseline run T-026-b on the same variant); this
+        particular run nonetheless ends in failure after 6 steps, which the
+        available harness record does not further explain — contrast with
+        T-026-b to see the expected baseline behavior. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=6, status=failure,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2868.
       failures:
-        - type: F-PRC-02
+        - type: PRC-01
           cause: software-side
           stage: prediction
     - id: T-026-b
@@ -1289,13 +1427,15 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: the WebView accessibility bridge is wired, so the
+        gift-card widget's input field is exposed in the a11y tree; the
+        text-only agent locates it, types the card number, and redeems the
+        gift card successfully. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=7, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2868.
       failures:
-        - type: F-PRC-02
+        - type: PRC-01
           cause: software-side
           stage: prediction
     - id: T-026-c
@@ -1304,12 +1444,16 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: the gift-card widget is withdrawn from the native a11y tree
+        as one opaque node with no accessible input field beneath it; the
+        agent inspects the hierarchy, finds no EditText anywhere under the
+        Gift Card card, and self-terminates in 7 steps reporting the defect
+        it detected — the same conclusion as run T-026-d, reached without
+        the latter's extended self-debate. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=7, status=failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2868.
       failures:
-        - type: F-PRC-02
+        - type: PRC-01
           cause: software-side
           stage: prediction
     - id: T-026-d
@@ -1318,12 +1462,19 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, most informative run: the agent clicks the opaque ViewGroup
+        in place of the missing input field, reasons visually about a text
+        field it cannot actually address by index, then explicitly notices
+        the node's own diagnostic name
+        ("defect:M_WEBVIEW_OPAQUE_GIFTCARD") and confirms there is "NO
+        EditText element in the entire UI hierarchy for Checkout"; it types
+        into the opaque node anyway (no visible effect) before
+        self-reporting failure and naming the defect it found. Harness
+        facts: agent=mobilerun,
         model=gemini-flash-latest, steps=8, status=failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2868.
       failures:
-        - type: F-PRC-02
+        - type: PRC-01
           cause: software-side
           stage: prediction
     - id: T-026-e
@@ -1332,12 +1483,15 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: unlike the task's other vision-only run
+        (T-026-f), which reads the rendered gift-card form directly and
+        succeeds, this attempt ends in failure after 9 steps; the available
+        harness record does not further specify the mechanism for this
+        particular run. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=9, status=failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2868.
       failures:
-        - type: F-PRC-02
+        - type: PRC-01
           cause: software-side
           stage: prediction
     - id: T-026-f
@@ -1346,12 +1500,15 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: the agent reads the rendered gift-card form
+        directly from pixels rather than the (opaque) a11y tree, so the
+        withdrawn a11y node has no effect on it — it types the card number
+        and redeems the gift card successfully. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=11, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2868.
       failures:
-        - type: F-PRC-02
+        - type: PRC-01
           cause: software-side
           stage: prediction
 
@@ -1373,7 +1530,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2869.
       failures:
-        - type: F-PRC-03
+        - type: PRC-02
           cause: software-side
           stage: prediction
     - id: T-027-b
@@ -1387,7 +1544,7 @@
         model=gemini-flash-latest, steps=9, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2869.
       failures:
-        - type: F-PRC-03
+        - type: PRC-02
           cause: software-side
           stage: prediction
     - id: T-027-c
@@ -1401,7 +1558,7 @@
         model=gemini-flash-latest, steps=4, status=failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2869.
       failures:
-        - type: F-PRC-03
+        - type: PRC-02
           cause: software-side
           stage: prediction
     - id: T-027-d
@@ -1415,7 +1572,7 @@
         model=gemini-flash-latest, steps=9, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2869.
       failures:
-        - type: F-PRC-03
+        - type: PRC-02
           cause: software-side
           stage: prediction
 
@@ -1437,7 +1594,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2870.
       failures:
-        - type: F-PRC-04
+        - type: PRC-03
           cause: software-side
           stage: prediction
     - id: T-028-b
@@ -1451,7 +1608,7 @@
         model=gemini-flash-latest, steps=7, status=failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2870.
       failures:
-        - type: F-PRC-04
+        - type: PRC-03
           cause: software-side
           stage: prediction
     - id: T-028-c
@@ -1465,7 +1622,7 @@
         model=gemini-flash-latest, steps=14, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2870.
       failures:
-        - type: F-PRC-04
+        - type: PRC-03
           cause: software-side
           stage: prediction
 
@@ -1487,7 +1644,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2871.
       failures:
-        - type: F-PRC-04
+        - type: PRC-03
           cause: software-side
           stage: prediction
     - id: T-029-b
@@ -1501,7 +1658,7 @@
         model=gemini-flash-latest, steps=7, status=failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2871.
       failures:
-        - type: F-PRC-04
+        - type: PRC-03
           cause: software-side
           stage: prediction
     - id: T-029-c
@@ -1517,7 +1674,7 @@
         human observer (pressed 'd')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2871.
       failures:
-        - type: F-PRC-04
+        - type: PRC-03
           cause: software-side
           stage: prediction
 
@@ -1533,13 +1690,15 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: the traffic-source bars and their expandable breakdown
+        are exposed in the a11y tree, so the text-only agent locates and
+        opens the "Mobile" segment's breakdown. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2872.
       failures:
-        - type: F-PRC-05
+        - type: PRC-04
           cause: software-side
           stage: prediction
     - id: T-030-b
@@ -1548,12 +1707,15 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: the whole chart visualisation, including the individual
+        bars and their expandable breakdown, is published as a single
+        graphic node with nothing beneath it in the a11y tree; the
+        text-only agent has no node to target the "Mobile" segment with and
+        cannot expand its breakdown. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=8, status=failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2872.
       failures:
-        - type: F-PRC-05
+        - type: PRC-04
           cause: software-side
           stage: prediction
     - id: T-030-c
@@ -1562,12 +1724,15 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: the bars and legend remain visually tappable
+        despite being withdrawn from the a11y tree; the agent perceives
+        them as pixels — with two viable targets (the bar itself and its
+        label) — and successfully expands the "Mobile" breakdown. Harness
+        facts: agent=mobilerun,
         model=gemini-flash-latest, steps=15, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2872.
       failures:
-        - type: F-PRC-05
+        - type: PRC-04
           cause: software-side
           stage: prediction
 
@@ -1589,7 +1754,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2873.
       failures:
-        - type: F-PRC-06
+        - type: PRC-05
           cause: software-side
           stage: prediction
     - id: T-031-b
@@ -1603,7 +1768,7 @@
         model=gemini-flash-latest, steps=4, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2873.
       failures:
-        - type: F-PRC-06
+        - type: PRC-05
           cause: software-side
           stage: prediction
     - id: T-031-c
@@ -1617,7 +1782,7 @@
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2873.
       failures:
-        - type: F-PRC-06
+        - type: PRC-05
           cause: software-side
           stage: prediction
     - id: T-031-d
@@ -1633,7 +1798,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2873.
       failures:
-        - type: F-PRC-06
+        - type: PRC-05
           cause: software-side
           stage: prediction
 
@@ -1655,7 +1820,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2874.
       failures:
-        - type: F-NAV-01
+        - type: NAV-01
           cause: software-side
           stage: prediction
     - id: T-032-b
@@ -1669,7 +1834,7 @@
         model=gemini-flash-latest, steps=7, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2874.
       failures:
-        - type: F-NAV-01
+        - type: NAV-01
           cause: software-side
           stage: prediction
     - id: T-032-c
@@ -1685,7 +1850,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2874.
       failures:
-        - type: F-NAV-01
+        - type: NAV-01
           cause: software-side
           stage: prediction
 
@@ -1707,7 +1872,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2875.
       failures:
-        - type: F-NAV-01
+        - type: NAV-01
           cause: software-side
           stage: prediction
     - id: T-033-b
@@ -1721,7 +1886,7 @@
         model=gemini-flash-latest, steps=8, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2875.
       failures:
-        - type: F-NAV-01
+        - type: NAV-01
           cause: software-side
           stage: prediction
     - id: T-033-c
@@ -1737,7 +1902,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2875.
       failures:
-        - type: F-NAV-01
+        - type: NAV-01
           cause: software-side
           stage: prediction
 
@@ -1753,13 +1918,14 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: the agent opens the Alert history list and locates the
+        earliest alert without the direction confusion seen on the faulty
+        variant. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=8, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2878.
       failures:
-        - type: F-FBK-01
+        - type: FBK-01
           cause: software-side
           stage: execution
     - id: T-034-b
@@ -1768,14 +1934,19 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: with no sort/filter control and no end-of-content signal,
+        the agent swipes to scroll the Alert history, then explicitly
+        reverses its own inferred scroll direction twice ("that means the
+        top of the history list (event 1) is UP! Let's swipe in the
+        opposite direction"), contradicting itself about which way is
+        "earliest"; the log ends mid-loop with no matching entry ever
+        confirmed. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, stop_reason=user_failure,
         status=human_failure, app_variant=faulty, error="Failure flagged by
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2878.
       failures:
-        - type: F-FBK-01
+        - type: FBK-01
           cause: software-side
           stage: execution
     - id: T-034-c
@@ -1784,14 +1955,19 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: same missing end-of-content signal as run
+        T-034-b — after a failed initial app-open attempt, the agent
+        swipes down through the Alert history then immediately back up
+        ("I will scroll back up to the top of the Alert history list to
+        see the earliest events"), then down again, before the log is cut
+        short by human intervention without ever confirming the earliest
+        entry. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, stop_reason=user_failure,
         status=human_failure, app_variant=faulty, error="Failure flagged by
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2878.
       failures:
-        - type: F-FBK-01
+        - type: FBK-01
           cause: software-side
           stage: execution
 
@@ -1813,7 +1989,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2879.
       failures:
-        - type: F-TMP-01
+        - type: TMP-01
           cause: software-side
           stage: prediction
     - id: T-035-b
@@ -1829,7 +2005,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2879.
       failures:
-        - type: F-TMP-01
+        - type: TMP-01
           cause: software-side
           stage: prediction
     - id: T-035-c
@@ -1845,7 +2021,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2879.
       failures:
-        - type: F-TMP-01
+        - type: TMP-01
           cause: software-side
           stage: prediction
 
@@ -1861,13 +2037,18 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: the agent taps "Start Chill Radio station" and is told
+        Radio is a Premium/subscription-gated feature; it self-reports
+        failure. This blocking surface is a flat feature gate with no
+        dismiss control at all (not a modal to close) — the same outcome
+        recurs identically on the faulty variant (run T-036-b), so the gate
+        is not the injected fault for this task. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=failure,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2882.
       failures:
-        - type: F-INS-01
+        - type: INS-01
           cause: software-side
           stage: prediction
     - id: T-036-b
@@ -1876,12 +2057,15 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: identical outcome to the baseline run T-036-a — the agent
+        taps "Start Chill Radio station" and is blocked by the same
+        Premium/subscription gate message, with no close/dismiss affordance
+        exposed for it, and self-reports failure. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2882.
       failures:
-        - type: F-INS-01
+        - type: INS-01
           cause: software-side
           stage: prediction
     - id: T-036-c
@@ -1890,12 +2074,16 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: the agent navigates to Browse, selects Chill
+        Radio, and reaches the same Premium-subscription gate as the
+        text-only runs; unlike a text-only agent it can see the gate
+        directly, but there is no bypass or close control to act on, so it
+        correctly self-reports that the feature requires a subscription.
+        Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=7, status=failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2882.
       failures:
-        - type: F-INS-01
+        - type: INS-01
           cause: software-side
           stage: prediction
 
@@ -1917,7 +2105,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2884.
       failures:
-        - type: F-STR-01
+        - type: STR-01
           cause: software-side
           stage: prediction
     - id: T-037-b
@@ -1933,7 +2121,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2884.
       failures:
-        - type: F-STR-01
+        - type: STR-01
           cause: software-side
           stage: prediction
     - id: T-037-c
@@ -1948,7 +2136,7 @@
         app_variant=faulty, error="Skipped by user (pressed 's') before
         completion", trace=None.
       failures:
-        - type: F-STR-01
+        - type: STR-01
           cause: software-side
           stage: prediction
 
@@ -1970,7 +2158,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2886.
       failures:
-        - type: F-CNT-02
+        - type: CNT-02
           cause: software-side
           stage: prediction
     - id: T-038-b
@@ -1986,7 +2174,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2886.
       failures:
-        - type: F-CNT-02
+        - type: CNT-02
           cause: software-side
           stage: prediction
     - id: T-038-c
@@ -2002,7 +2190,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2886.
       failures:
-        - type: F-CNT-02
+        - type: CNT-02
           cause: software-side
           stage: prediction
 
@@ -2024,7 +2212,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2887.
       failures:
-        - type: F-CNT-03
+        - type: CNT-03
           cause: software-side
           stage: prediction
     - id: T-039-b
@@ -2038,7 +2226,7 @@
         model=gemini-flash-latest, steps=5, status=human_failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2887.
       failures:
-        - type: F-CNT-03
+        - type: CNT-03
           cause: software-side
           stage: prediction
     - id: T-039-c
@@ -2054,7 +2242,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2887.
       failures:
-        - type: F-CNT-03
+        - type: CNT-03
           cause: software-side
           stage: prediction
 
@@ -2070,13 +2258,14 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: the agent finds the cheapest "Popular this week" item
+        without the page-scoping problem that affects the faulty variant's
+        sort/list. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2888.
       failures:
-        - type: F-CNT-03
+        - type: CNT-03
           cause: software-side
           stage: prediction
     - id: T-040-b
@@ -2085,12 +2274,16 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: the "Sort by price" control and the initial item list only
+        order/show the currently-loaded page; this run reads the 6 items
+        visible after one scroll without ever invoking "Load more" and
+        reports the wrong cheapest item, missing the true minimum among the
+        16 items that only appear after expanding the list (same wrong
+        answer as run T-040-d). Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=human_failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2888.
       failures:
-        - type: F-CNT-03
+        - type: CNT-03
           cause: software-side
           stage: prediction
     - id: T-040-c
@@ -2099,12 +2292,16 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: unlike the text-only faulty runs, this run
+        discovers and uses the "Load more" control to expand the
+        page-scoped catalogue before identifying the cheapest item,
+        independently arriving at the correct answer (Sponge Pack, \$6) —
+        the same pattern confirmed in more detail in run T-040-f. Harness
+        facts: agent=mobilerun,
         model=gemini-flash-latest, steps=10, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2888.
       failures:
-        - type: F-CNT-03
+        - type: CNT-03
           cause: software-side
           stage: prediction
     - id: T-040-d
@@ -2113,12 +2310,14 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, second replicate: same mechanism as run T-040-b — the agent
+        reads only the 6 items visible after one scroll, never invokes
+        "Load more", and reports the wrong cheapest item. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=human_failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2888.
       failures:
-        - type: F-CNT-03
+        - type: CNT-03
           cause: software-side
           stage: prediction
     - id: T-040-e
@@ -2127,12 +2326,18 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, clearest of the three text-only faulty runs: the agent does
+        use the "Sort by price, low to high" control, then trusts the
+        app's own footer text verbatim ("Cheapest shown: Sticky Notes \$8")
+        and self-reports success — but that footer, like the sort itself,
+        is scoped only to the currently-loaded page, so the answer is
+        wrong; the true cheapest item (Sponge Pack, \$6) only appears after
+        expanding the list via "Load more", which this run never invokes.
+        Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=7, status=human_failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2888.
       failures:
-        - type: F-CNT-03
+        - type: CNT-03
           cause: software-side
           stage: prediction
     - id: T-040-f
@@ -2141,12 +2346,20 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: the agent uses "Load more" twice, scrolls to
+        the bottom of the expanded catalogue, and explicitly double-checks
+        for more items ("I will swipe down once more to confirm there are
+        no additional items") before answering Sponge Pack (\$6) — the
+        genuinely correct cheapest item, strictly cheaper than the
+        page-scoped answer every text-only faulty run reported. This is not
+        a false positive: by discovering and using "Load more," the
+        vision-only agent found the actually-correct answer where the
+        text-only agent trusted a page-scoped sort/footer. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=20, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2888.
       failures:
-        - type: F-CNT-03
+        - type: CNT-03
           cause: software-side
           stage: prediction
 
@@ -2162,13 +2375,14 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: the agent scrolls the Social feed and locates the oldest
+        post without the unbounded-scroll problem present on the faulty
+        variant. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=11, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2889.
       failures:
-        - type: F-FBK-01
+        - type: FBK-01
           cause: software-side
           stage: execution
     - id: T-041-b
@@ -2177,12 +2391,15 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: the feed offers no sort control or end-of-content signal
+        and holds a long post history, so the agent scrolls repeatedly
+        without ever confirming it has reached the oldest post; the run
+        ends without a terminal state reached. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=11, status=failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2889.
       failures:
-        - type: F-FBK-01
+        - type: FBK-01
           cause: software-side
           stage: execution
     - id: T-041-c
@@ -2191,14 +2408,17 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: same missing sort/end-of-content signal as run
+        T-041-b — perceiving the feed visually does not help the agent
+        determine when it has reached the oldest post, and the run is
+        stopped by a human observer without reaching a terminal state.
+        Harness facts: agent=mobilerun,
         model=gemini-flash-latest, stop_reason=user_failure,
         status=human_failure, app_variant=faulty, error="Failure flagged by
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2889.
       failures:
-        - type: F-FBK-01
+        - type: FBK-01
           cause: software-side
           stage: execution
 
@@ -2214,13 +2434,14 @@
       platform: mobile
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Baseline: the product page displays a fetching indicator until the
+        authoritative stock status resolves, so the agent waits and reports
+        the correct value. Harness facts: agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=success,
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2890.
       failures:
-        - type: F-TMP-02
+        - type: TMP-02
           cause: joint
           stage: execution
     - id: T-042-b
@@ -2229,12 +2450,18 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty: the product page renders a stale default "in stock" value
+        immediately on load, before the background availability fetch
+        resolves (the real status settles roughly 12 seconds later, per the
+        fault's own timing). The agent reads the stale value on the first
+        opportunity, with no indicator that a fetch is pending, and
+        self-reports "The Nike Air Max Pulse is currently in stock" —
+        wrong, but reported as success=true. Harness facts:
+        agent=mobilerun,
         model=gemini-flash-latest, steps=5, status=human_failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2890.
       failures:
-        - type: F-TMP-02
+        - type: TMP-02
           cause: joint
           stage: execution
     - id: T-042-c
@@ -2243,12 +2470,16 @@
       platform: mobile
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=mobilerun,
+        Faulty, vision-only: same stale-default mechanism as run T-042-b —
+        the product page shows "AVAILABILITY: In stock" in green text on
+        first paint, and the agent reads and reports this value immediately
+        without waiting or re-checking after the background fetch, again
+        reporting the wrong value as a self-reported success. Harness
+        facts: agent=mobilerun,
         model=gemini-flash-latest, steps=9, status=human_failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2890.
       failures:
-        - type: F-TMP-02
+        - type: TMP-02
           cause: joint
           stage: execution
 
@@ -2270,7 +2501,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2892.
       failures:
-        - type: F-INS-02
+        - type: INS-02
           cause: software-side
           stage: execution
     - id: T-043-b
@@ -2285,7 +2516,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2892.
       failures:
-        - type: F-INS-02
+        - type: INS-02
           cause: software-side
           stage: execution
     - id: T-043-c
@@ -2301,7 +2532,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2892.
       failures:
-        - type: F-INS-02
+        - type: INS-02
           cause: software-side
           stage: execution
     - id: T-043-d
@@ -2317,7 +2548,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2892.
       failures:
-        - type: F-INS-02
+        - type: INS-02
           cause: software-side
           stage: execution
 
@@ -2339,7 +2570,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2893.
       failures:
-        - type: F-INS-03
+        - type: INS-03
           cause: software-side
           stage: prediction
     - id: T-044-b
@@ -2354,7 +2585,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2893.
       failures:
-        - type: F-INS-03
+        - type: INS-03
           cause: software-side
           stage: prediction
     - id: T-044-c
@@ -2368,7 +2599,7 @@
         model=gemini-flash-latest, steps=6, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2893.
       failures:
-        - type: F-INS-03
+        - type: INS-03
           cause: software-side
           stage: prediction
     - id: T-044-d
@@ -2384,7 +2615,7 @@
         human observer (pressed 'f')",
         trace=mobilerun\raw\gui-failure-suite-mobile-2893.
       failures:
-        - type: F-INS-03
+        - type: INS-03
           cause: software-side
           stage: prediction
 
@@ -2406,7 +2637,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2894.
       failures:
-        - type: F-CNT-01
+        - type: CNT-01
           cause: software-side
           stage: prediction
     - id: T-045-b
@@ -2421,7 +2652,7 @@
         app_variant=baseline,
         trace=mobilerun\raw\gui-failure-suite-mobile-2894.
       failures:
-        - type: F-CNT-01
+        - type: CNT-01
           cause: software-side
           stage: prediction
     - id: T-045-c
@@ -2435,7 +2666,7 @@
         model=gemini-flash-latest, steps=4, status=human_failure,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2894.
       failures:
-        - type: F-CNT-01
+        - type: CNT-01
           cause: software-side
           stage: prediction
     - id: T-045-d
@@ -2449,7 +2680,7 @@
         model=gemini-flash-latest, steps=10, status=success,
         app_variant=faulty, trace=mobilerun\raw\gui-failure-suite-mobile-2894.
       failures:
-        - type: F-CNT-01
+        - type: CNT-01
           cause: software-side
           stage: prediction
 
@@ -2465,12 +2696,13 @@
       platform: desktop
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Baseline: clicking Sync displays a "Syncing..." status message that
+        the agent perceives textually, confirming the operation started and
+        completing the task. Harness facts: agent=ufo, model=gemini-3.5-flash,
         steps=5, status=success, app_variant=baseline,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2896.
       failures:
-        - type: F-TMP-02
+        - type: TMP-02
           cause: joint
           stage: execution
     - id: T-046-b
@@ -2479,13 +2711,16 @@
       platform: desktop
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Faulty: clicking Sync does not update the GUI state to show any
+        syncing message, even though the sync is triggered in the
+        background; the agent perceives no change in the interface after
+        clicking and cannot confirm the operation, halting the task.
+        Harness facts: agent=ufo, model=gemini-3.5-flash,
         stop_reason=user_failure, status=human_failure, app_variant=faulty,
         error="Failure flagged by human observer (pressed 'f')",
         trace=ufo\raw\gui-failure-suite-desktop_windows-2896.
       failures:
-        - type: F-TMP-02
+        - type: TMP-02
           cause: joint
           stage: execution
     - id: T-046-c
@@ -2494,12 +2729,14 @@
       platform: desktop
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        Baseline, vision-only: the "Syncing..." message renders visibly
+        after the Sync click, so the agent perceives it directly and
+        completes the task. Harness facts: agent=pc_agent,
+        model=gemini-3.5-flash,
         steps=6, status=success, app_variant=baseline,
         trace=pc_agent\raw\gui-failure-suite-desktop_windows-2896.
       failures:
-        - type: F-TMP-02
+        - type: TMP-02
           cause: joint
           stage: execution
     - id: T-046-d
@@ -2508,12 +2745,14 @@
       platform: desktop
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        Faulty, vision-only: same missing state signal as run T-046-b — no
+        syncing message renders visually either, so the vision-only agent
+        also sees no change after clicking Sync and cannot confirm the
+        operation. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
         steps=5, status=human_failure, app_variant=faulty,
         trace=pc_agent\raw\gui-failure-suite-desktop_windows-2896.
       failures:
-        - type: F-TMP-02
+        - type: TMP-02
           cause: joint
           stage: execution
 
@@ -2529,13 +2768,17 @@
       platform: desktop
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Faulty: clicking the menu button renders a dropdown with nested
+        options, but the newly-rendered dropdown has no registered role,
+        name, or children in the a11y tree, so it holds no actionable node;
+        the text-only agent halts, having no path to take because it
+        cannot perceive the dropdown at all. Harness facts: agent=ufo,
+        model=gemini-3.5-flash,
         stop_reason=user_failure, status=human_failure, app_variant=faulty,
         error="Failure flagged by human observer (pressed 'f')",
         trace=ufo\raw\gui-failure-suite-desktop_windows-2897.
       failures:
-        - type: F-PRC-05
+        - type: PRC-04
           cause: software-side
           stage: prediction
     - id: T-047-b
@@ -2544,12 +2787,14 @@
       platform: desktop
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Baseline: the dropdown and its nested options carry clear
+        accessibility attributes, so the text-only agent perceives and
+        interacts with the menu directly, completing the export. Harness
+        facts: agent=ufo, model=gemini-3.5-flash,
         steps=8, status=success, app_variant=baseline,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2897.
       failures:
-        - type: F-PRC-05
+        - type: PRC-04
           cause: software-side
           stage: prediction
     - id: T-047-c
@@ -2558,12 +2803,14 @@
       platform: desktop
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        Baseline, vision-only: the dropdown is visually perceivable
+        regardless of its a11y-tree status, so the agent operates it
+        directly and succeeds. Harness facts: agent=pc_agent,
+        model=gemini-3.5-flash,
         steps=5, status=success, app_variant=baseline,
         trace=pc_agent\raw\gui-failure-suite-desktop_windows-2897.
       failures:
-        - type: F-PRC-05
+        - type: PRC-04
           cause: software-side
           stage: prediction
     - id: T-047-d
@@ -2572,12 +2819,14 @@
       platform: desktop
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        Faulty, vision-only: the dropdown's missing role/name/children in
+        the a11y tree has no effect on the vision-only agent, which sees
+        the rendered menu and its options directly and completes the
+        export. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
         steps=12, status=success, app_variant=faulty,
         trace=pc_agent\raw\gui-failure-suite-desktop_windows-2897.
       failures:
-        - type: F-PRC-05
+        - type: PRC-04
           cause: software-side
           stage: prediction
 
@@ -2598,7 +2847,7 @@
         steps=5, status=success, app_variant=baseline,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2898.
       failures:
-        - type: F-IDT-03
+        - type: IDT-03
           cause: software-side
           stage: prediction
     - id: T-048-b
@@ -2612,7 +2861,7 @@
         steps=5, status=success, app_variant=faulty,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2898.
       failures:
-        - type: F-IDT-03
+        - type: IDT-03
           cause: software-side
           stage: prediction
     - id: T-048-c
@@ -2626,7 +2875,7 @@
         steps=4, status=success, app_variant=baseline,
         trace=pc_agent\raw\gui-failure-suite-desktop_windows-2898.
       failures:
-        - type: F-IDT-03
+        - type: IDT-03
           cause: software-side
           stage: prediction
     - id: T-048-d
@@ -2641,7 +2890,7 @@
         error="Failure flagged by human observer (pressed 'f')",
         trace=pc_agent\raw\gui-failure-suite-desktop_windows-2898.
       failures:
-        - type: F-IDT-03
+        - type: IDT-03
           cause: software-side
           stage: prediction
 
@@ -2662,7 +2911,7 @@
         steps=5, status=success, app_variant=baseline,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2899.
       failures:
-        - type: F-IDT-01
+        - type: IDT-01
           cause: software-side
           stage: prediction
     - id: T-049-b
@@ -2676,7 +2925,7 @@
         steps=5, status=human_failure, app_variant=faulty,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2899.
       failures:
-        - type: F-IDT-01
+        - type: IDT-01
           cause: software-side
           stage: prediction
     - id: T-049-c
@@ -2690,7 +2939,7 @@
         steps=4, status=success, app_variant=baseline,
         trace=pc_agent\raw\gui-failure-suite-desktop_windows-2899.
       failures:
-        - type: F-IDT-01
+        - type: IDT-01
           cause: software-side
           stage: prediction
     - id: T-049-d
@@ -2705,7 +2954,7 @@
         app_variant=faulty,
         trace=pc_agent\raw\gui-failure-suite-desktop_windows-2899.
       failures:
-        - type: F-IDT-01
+        - type: IDT-01
           cause: software-side
           stage: prediction
 
@@ -2721,12 +2970,13 @@
       platform: desktop
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Baseline: the Archive button's accessible name matches its rendered
+        label, so the agent clicks the correct control and archives the
+        file. Harness facts: agent=ufo, model=gemini-3.5-flash,
         steps=5, status=success, app_variant=baseline,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2900.
       failures:
-        - type: F-STR-05
+        - type: STR-02
           cause: software-side
           stage: prediction
     - id: T-050-b
@@ -2735,13 +2985,20 @@
       platform: desktop
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Faulty: the two Cleanup-row buttons' accessible names are swapped
+        relative to their rendered/visual labels. The UFO agent clicks the
+        control whose a11y \texttt{name} property reads "Archive"
+        (id=13, rect=[1093,260,1177,301]) — the wrong button, since the
+        correctly-labelled Archive control sits at a different position
+        (rect=[984,270,1075,311] in the baseline) — and self-reports
+        "Successfully archived the file 'draft-notes.docx'"; the agent has
+        no means of noticing the rendered label disagreed with the a11y
+        name it acted on. Harness facts: agent=ufo, model=gemini-3.5-flash,
         stop_reason=user_failure, status=human_failure, app_variant=faulty,
         error="Failure flagged by human observer (pressed 'f')",
         trace=ufo\raw\gui-failure-suite-desktop_windows-2900.
       failures:
-        - type: F-STR-05
+        - type: STR-02
           cause: software-side
           stage: prediction
     - id: T-050-c
@@ -2750,12 +3007,14 @@
       platform: desktop
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        Faulty, vision-only: the rendered visual captions are unaffected by
+        the a11y-name swap — the vision-only agent clicks the button whose
+        on-screen label reads "Archive" and correctly archives the file.
+        Harness facts: agent=pc_agent, model=gemini-3.5-flash,
         steps=4, status=success, app_variant=faulty,
         trace=pc_agent\raw\gui-failure-suite-desktop_windows-2900.
       failures:
-        - type: F-STR-05
+        - type: STR-02
           cause: software-side
           stage: prediction
 
@@ -2771,13 +3030,17 @@
       platform: desktop
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Environment/parsing crash, not behavioral evidence: stderr shows
+        UFO's HostAgent LLM response failing JSON parsing before any step
+        was recorded (steps=0). Should not be cited as evidence for the
+        validation-error perceptibility hypothesis this task otherwise
+        tests (see the behavioral runs T-051-d/e/f instead). Harness facts:
+        agent=ufo, model=gemini-3.5-flash,
         steps=0, stop_reason=incomplete, status=failure,
         app_variant=baseline,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2901.
       failures:
-        - type: F-FBK-06
+        - type: FBK-02
           cause: software-side
           stage: execution
     - id: T-051-b
@@ -2786,13 +3049,16 @@
       platform: desktop
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Environment/parsing crash, not behavioral evidence: same repeated
+        UFO HostAgent JSON-parsing failure as runs T-051-a/c, before any
+        step was recorded. Not evidence for the validation-error
+        perceptibility hypothesis. Harness facts: agent=ufo,
+        model=gemini-3.5-flash,
         steps=0, stop_reason=incomplete, status=failure,
         app_variant=baseline,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2901.
       failures:
-        - type: F-FBK-06
+        - type: FBK-02
           cause: software-side
           stage: execution
     - id: T-051-c
@@ -2801,13 +3067,15 @@
       platform: desktop
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Environment/parsing crash, not behavioral evidence: third
+        consecutive UFO HostAgent JSON-parsing failure, before any step was
+        recorded. Not evidence for the validation-error perceptibility
+        hypothesis. Harness facts: agent=ufo, model=gemini-3.5-flash,
         steps=0, stop_reason=incomplete, status=failure,
         app_variant=baseline,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2901.
       failures:
-        - type: F-FBK-06
+        - type: FBK-02
           cause: software-side
           stage: execution
     - id: T-051-d
@@ -2816,12 +3084,18 @@
       platform: desktop
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Baseline (valid postcode data): the agent clicks Open Store,
+        Shipping, then "Save address" and immediately declares completion
+        with no intervening step that reads back a confirmation or checks
+        for an error state. A human observer judged this run a failure
+        despite the agent's own self-report of success — on the baseline
+        variant, where the data is valid — showing the premature-success
+        pattern is an agent-side behavior reproducible even without any
+        injected fault. Harness facts: agent=ufo, model=gemini-3.5-flash,
         steps=5, status=human_failure, app_variant=baseline,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2901.
       failures:
-        - type: F-FBK-06
+        - type: FBK-02
           cause: software-side
           stage: execution
     - id: T-051-e
@@ -2830,12 +3104,19 @@
       platform: desktop
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Faulty (postcode seeded as "1O115", letter O instead of digit 0):
+        the invalid-postcode validation error is painted as pixels with no
+        UIA/automation peer, so the text-only agent has no way to perceive
+        it. Its trajectory is step-for-step identical to the baseline run
+        T-051-d (Open Store → Shipping → Save address → declare complete),
+        five steps in both cases — critically, it does not even attempt to
+        check for an error on either variant, so the a11y omission cannot
+        be distinguished from the agent's own premature-success habit in
+        this run alone. Harness facts: agent=ufo, model=gemini-3.5-flash,
         steps=5, status=human_failure, app_variant=faulty,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2901.
       failures:
-        - type: F-FBK-06
+        - type: FBK-02
           cause: software-side
           stage: execution
     - id: T-051-f
@@ -2844,13 +3125,24 @@
       platform: desktop
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        Faulty, vision-only: unlike the text-only agent, this run genuinely
+        perceives the pixel-rendered validation error and correctly
+        diagnoses it as an 'O'/'0' glyph substitution in the postcode
+        ("1O115" vs "10115") — it is not blind to the fault. Its failure
+        mode is instead an execution/retry loop: roughly 16 recorded
+        Replace/Tap/Double-Tap/Ctrl+A/Backspace actions on the postcode
+        field, at one point even losing track of the Store app window,
+        never confirming the fix took, until a human observer stops the
+        run after 129s. It never re-clicks "Save address" after
+        identifying the problem and never self-reports success — this run
+        does NOT show the "declares success on submit" pattern seen in the
+        text-only runs; it is a genuine perception-plus-execution failure.
+        Harness facts: agent=pc_agent, model=gemini-3.5-flash,
         stop_reason=user_failure, status=human_failure, app_variant=faulty,
         error="Failure flagged by human observer (pressed 'f')",
         trace=pc_agent\raw\gui-failure-suite-desktop_windows-2901.
       failures:
-        - type: F-FBK-06
+        - type: FBK-02
           cause: software-side
           stage: execution
 
@@ -2866,12 +3158,16 @@
       platform: desktop
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Baseline: the destination combo box commits the typed value on
+        entry, so the Move click actually moves the file; the agent's
+        final step quotes an explicit on-screen confirmation string ("The
+        application confirmed the action with the message 'Moved
+        report-2026.pdf to Archive.'"), unlike the faulty run's inferred
+        success. Harness facts: agent=ufo, model=gemini-3.5-flash,
         steps=7, status=success, app_variant=baseline,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2902.
       failures:
-        - type: F-INA-01
+        - type: INA-01
           cause: software-side
           stage: execution
     - id: T-052-b
@@ -2880,13 +3176,19 @@
       platform: desktop
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Faulty: the destination combo box does not commit a typed value
+        unless a dropdown suggestion is explicitly clicked. The agent calls
+        \texttt{set\_edit\_text(text='Archive', ...)} and proceeds straight
+        to clicking Move without ever clicking a dropdown item, then
+        simply asserts "Successfully moved 'report-2026.pdf' to the
+        'Archive' folder" — its own inference, not a quoted on-screen
+        confirmation like the baseline run T-052-a produces; the file does
+        not actually move. Harness facts: agent=ufo, model=gemini-3.5-flash,
         stop_reason=user_failure, status=human_failure, app_variant=faulty,
         error="Failure flagged by human observer (pressed 'f')",
         trace=ufo\raw\gui-failure-suite-desktop_windows-2902.
       failures:
-        - type: F-INA-01
+        - type: INA-01
           cause: software-side
           stage: execution
     - id: T-052-c
@@ -2895,13 +3197,19 @@
       platform: desktop
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        Faulty, vision-only: the agent repeatedly types "Archive" into the
+        destination field, each time observing it still empty and retrying
+        (Type/Tap cycles across roughly 15 steps), and never reaches a Move
+        click or a success claim. This is a different failure shape from
+        the text-only run T-052-b — not a false positive but a genuine
+        perception-loop retry that never terminates — before a human
+        observer flags the run as a failure. Harness facts: agent=pc_agent,
+        model=gemini-3.5-flash,
         stop_reason=user_failure, status=human_failure, app_variant=faulty,
         error="Failure flagged by human observer (pressed 'f')",
         trace=pc_agent\raw\gui-failure-suite-desktop_windows-2902.
       failures:
-        - type: F-INA-01
+        - type: INA-01
           cause: software-side
           stage: execution
 
@@ -2917,12 +3225,19 @@
       platform: desktop
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Baseline: the refund flow has no identity-verification gate; the
+        agent opens Store, Refunds, requests the refund, and the app
+        confirms with "Refund requested for order #4417 (identity not
+        verified)." Every \texttt{select\_application\_window} call in the
+        UFO log targets the same "Workspace" window, re-enumerated as the
+        Store app's view renders on top of it — there is no genuinely
+        separate second window in this trace, despite the task's
+        "multi-window" label. Harness facts: agent=ufo,
+        model=gemini-3.5-flash,
         steps=12, status=success, app_variant=baseline,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2903.
       failures:
-        - type: F-INS-04
+        - type: INS-04
           cause: software-side
           stage: execution
     - id: T-053-b
@@ -2931,12 +3246,13 @@
       platform: desktop
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Baseline, duplicate run: same trajectory and outcome as T-053-a,
+        also completing in 12 steps. Harness facts: agent=ufo,
+        model=gemini-3.5-flash,
         steps=12, status=success, app_variant=baseline,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2903.
       failures:
-        - type: F-INS-04
+        - type: INS-04
           cause: software-side
           stage: execution
     - id: T-053-c
@@ -2945,12 +3261,21 @@
       platform: desktop
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Faulty: the variant inserts a "Verify your identity" dialog that
+        should gate the refund until the last four card digits are
+        confirmed. The agent types the digits, clicks Verify, then Request
+        refund, and the app confirms normally ("Refund requested for order
+        #4417. You'll see it in 3-5 days.") — it proceeds through the gate
+        rather than bypassing it, but because the run register only
+        records terminal outcomes, it cannot by itself distinguish a
+        legitimate step-by-step verification from the automation layer
+        invoking the refund control while skipping the gate, which is the
+        ambiguity INS-04 names. Harness facts: agent=ufo,
+        model=gemini-3.5-flash,
         steps=8, status=success, app_variant=faulty,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2903.
       failures:
-        - type: F-INS-04
+        - type: INS-04
           cause: software-side
           stage: execution
     - id: T-053-d
@@ -2959,12 +3284,19 @@
       platform: desktop
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        Faulty, vision-only: the agent taps into Refunds, encounters the
+        "Verify your identity" pop-up, spends about 13 of its 19 steps on
+        repeated Type/Tap attempts at the digit-entry field (several
+        mistyped or unfocused) before the Verify button registers, then
+        taps Request refund and reads the same "3-5 days" confirmation
+        message before stopping. An earlier attempt on this task/variant
+        (run 2026-07-28_183725) was user-skipped/aborted before
+        completion and is not represented here. Harness facts:
+        agent=pc_agent, model=gemini-3.5-flash,
         steps=19, status=success, app_variant=faulty,
         trace=pc_agent\raw\gui-failure-suite-desktop_windows-2903.
       failures:
-        - type: F-INS-04
+        - type: INS-04
           cause: software-side
           stage: execution
 
@@ -2980,12 +3312,13 @@
       platform: desktop
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Baseline: the version row exposes a named "Restore 12 July" Button
+        control in the a11y tree, which the agent clicks directly to
+        restore the version. Harness facts: agent=ufo, model=gemini-3.5-flash,
         steps=7, status=success, app_variant=baseline,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2904.
       failures:
-        - type: F-PRC-05
+        - type: PRC-04
           cause: software-side
           stage: prediction
     - id: T-054-b
@@ -2994,12 +3327,17 @@
       platform: desktop
       outcome: failed
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=ufo, model=gemini-3.5-flash,
+        Faulty: no "Restore" button control exists in the a11y tree for
+        this variant. The agent instead clicks the version row's date
+        label (\texttt{type: Text}, not \texttt{Button}), and the run
+        simply ends there after 3 AppAgent steps — no restore action is
+        ever executed, the clearest illustration of a restore control
+        withdrawn from the accessibility tree. Harness facts: agent=ufo,
+        model=gemini-3.5-flash,
         steps=4, stop_reason=incomplete, status=failure, app_variant=faulty,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2904.
       failures:
-        - type: F-PRC-05
+        - type: PRC-04
           cause: software-side
           stage: prediction
     - id: T-054-c
@@ -3008,12 +3346,14 @@
       platform: desktop
       outcome: succeeded
       notes: >
-        TODO describe the mechanism — what the agent did and why the GUI
-        defeated it. Harness facts: agent=pc_agent, model=gemini-3.5-flash,
+        Faulty, vision-only: the Restore control is still visually rendered
+        and clickable even though its node is absent from the a11y tree,
+        so the vision-only agent operates it directly and succeeds. Harness
+        facts: agent=pc_agent, model=gemini-3.5-flash,
         steps=4, status=success, app_variant=faulty,
         trace=pc_agent\raw\gui-failure-suite-desktop_windows-2904.
       failures:
-        - type: F-PRC-05
+        - type: PRC-04
           cause: software-side
           stage: prediction
 
@@ -3034,7 +3374,7 @@
         steps=10, status=success, app_variant=baseline,
         trace=ufo\raw\gui-failure-suite-desktop_windows-2905.
       failures:
-        - type: F-NAV-02
+        - type: NAV-02
           cause: software-side
           stage: execution
     - id: T-055-b
@@ -3049,7 +3389,7 @@
         error="Failure flagged by human observer (pressed 'f')",
         trace=ufo\raw\gui-failure-suite-desktop_windows-2905.
       failures:
-        - type: F-NAV-02
+        - type: NAV-02
           cause: software-side
           stage: execution
     - id: T-055-c
@@ -3063,6 +3403,84 @@
         steps=6, status=success, app_variant=faulty,
         trace=pc_agent\raw\gui-failure-suite-desktop_windows-2905.
       failures:
-        - type: F-NAV-02
+        - type: NAV-02
           cause: software-side
+          stage: execution
+
+# T-056 (gui-failure-suite-web-2790) added post-hoc: this task was never in the
+# original register, but is the real, log-verified evidence behind the
+# thesis's placeholder "% web-..." multi-tab citation (chapters/04, mind2web-
+# web-1034 was mislabeled as this task's source; 1034's own tagged evidence is
+# unrelated — see its T-016 entry above). Identified via direct grep of seeact
+# agent.log files for "new tab"/"popup"/"_blank" mentions. Cause is tagged
+# agent-side per the logs (the seeact/Playwright runner has no explicit
+# multi-tab handling and shows the identical failure mechanism on both app
+# variants, not just where a fault is injected) rather than NAV.yaml's
+# software-side "expected" default for NAV-02 -- reconcile upstream if the
+# type's aggregate cause classification should reflect this.
+- id: T-056
+  task_id: "gui-failure-suite-web-2790"
+  app: "http://localhost:3000/failures/action-misrouted-across-tabs"
+  task: "Open invoice #1041 for review, then open invoice #1042 for review, then approve invoice #1041 in its review tab."
+  source: controlled
+  runs:
+    - id: T-056-a
+      run_id: 2026-07-15_141257
+      representation: multimodal
+      platform: web
+      outcome: failed
+      notes: >
+        Baseline: clicking "Review in new tab" for Invoice #1041 opens a
+        genuine new browser tab, but the agent's next observation never
+        switches to it — the candidate-element list it re-extracts is
+        byte-for-byte the same main-tab listing as before the click.
+        Believing from its own narration that it is now in the review tab,
+        it issues CLOSE TAB, closing a tab and landing back on the original
+        invoice list having completed none of the task's three required
+        sub-actions. The seeact/Playwright runner has no explicit
+        multi-tab/popup handling. Harness facts: agent=seeact, status=error,
+        app_variant=baseline,
+        trace=seeact\raw\gui-failure-suite-web-2790.
+      failures:
+        - type: NAV-02
+          cause: agent-side
+          stage: execution
+    - id: T-056-b
+      run_id: 2026-07-15_141335
+      representation: multimodal
+      platform: web
+      outcome: failed
+      notes: >
+        Baseline, most informative run (2 steps): identical mechanism to run
+        T-056-a. Step 1 clicks "Review in new tab" for Invoice #1041, which
+        opens a new tab; step 2's re-extracted candidate list is unchanged
+        from step 1's original invoice-list tab, yet the agent narrates
+        "since invoice #1041 was opened in a new tab, we will close this
+        tab" and issues CLOSE TAB — closing a tab and completing none of
+        the task's three sub-actions before a human observer flags the run
+        a failure. Harness facts: agent=seeact, steps=2,
+        status=human_failure, app_variant=baseline,
+        trace=seeact\raw\gui-failure-suite-web-2790.
+      failures:
+        - type: NAV-02
+          cause: agent-side
+          stage: execution
+    - id: T-056-c
+      run_id: 2026-07-15_152930
+      representation: multimodal
+      platform: web
+      outcome: failed
+      notes: >
+        Faulty variant (inferred: this is the one of the task's three runs
+        not explicitly labelled "baseline" in the source record, and the
+        mechanism is independently confirmed to recur on both variants —
+        confirm against the raw run log if the variant assignment matters).
+        Same tab-misrouting mechanism as runs T-056-a/b: "Review in new
+        tab" opens a genuine tab, the agent's next observation stays on the
+        original tab, and it closes a tab believing it was the new one.
+        Harness facts: agent=seeact, status=error,
+        trace=seeact\raw\gui-failure-suite-web-2790.
+      failures:
+        - type: NAV-02
+          cause: agent-side
           stage: execution

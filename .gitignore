@@ -11,3 +11,4 @@ helper/
 .playwright-mcp/
 backups/
 ui_prototypes/
+thesis_run_id_mapping.md

@@ -12,3 +12,4 @@ helper/
 backups/
 ui_prototypes/
 thesis_run_id_mapping.md
+taxonomy/task_runs_*.json

@@ -1,0 +1,69 @@
+# GUI Agent Failures — Interaction Affordance (v3)
+#
+# One file per category: every type in this file has
+# `category: interaction_affordance` and an id of the form `INA-{NN}`. Which
+# platform(s) a type applies to is a facet (`facets.platform`), not a file —
+# that is the difference from v2, where files were mobile/web/desktop/
+# cross-platform and the category lived only inside each entry.
+#
+# NOT sourced from Notion, unlike the other category files: the Notion
+# "Failure Taxonomy" database has no numbered Interaction Affordance rows, so
+# this file was empty by design until batch 03. INA-01 below was created
+# for the batch 03 desktop runs (taxonomy/task_runs_03.json, T-052) whose
+# task->defect assignment named it; its `failure` is that assignment's name
+# verbatim, and its `description` and every facet are local judgements read
+# off those runs, not transcriptions. It has no Notion row and so no
+# "Failure ID (old)" — reconcile it upstream. Anything transcribed from
+# Notion later must not renumber it. See README.md ("Adding a new failure
+# type") for the record shape, and specs/taxonomy-structure.md for the
+# normative schema.
+#
+# `{NN}` is the next free number in THIS file (ids are category-scoped, and
+# a category now lives in exactly one file, so a duplicate id is only
+# possible within this file).
+#
+# Template — copy/paste below, uncomment, and fill in:
+#
+# - id: INA-NN
+#   category: interaction_affordance
+#   failure: Short Human-Readable Name
+#   description: >
+#     What the failure is and why it happens.
+#   assessment_ref: candidate   # or an Fx.y ref into failure-assessment.md
+#   facets:
+#     representation:
+#       expected: []            # subset of [text-only, vision-only, multimodal]
+#     platform:
+#       expected: []            # subset of [web, mobile, desktop]
+#     cause: software-side      # software-side | agent-side | joint
+#     stage: prediction         # prediction | execution | unclear
+#   remediation:
+#     fix: >
+#       The proposed software-/design-side change.
+#     helps: []                 # which representation(s) the fix unblocks
+
+
+- id: INA-01
+  category: interaction_affordance
+  failure: Editable Combo Box Accepts Uncommitted Value
+  description: >
+    An editable combo box lets text be typed into its edit field but only
+    commits a value on an explicit selection or Enter, and shows no difference
+    between the two states. Typing alone leaves the control looking filled
+    while its value is still unset, so an agent that types and moves on
+    submits an empty field and reads the resulting no-op as success. It costs
+    both representations: the rendered control and the automation tree each
+    report the typed text.
+  facets:
+    representation:
+      expected: [text-only, vision-only]
+    platform:
+      expected: [web, desktop]
+    cause: software-side
+    stage: execution
+  remediation:
+    fix: >
+      TODO — new type, no remediation agreed yet. Starting point: commit the
+      typed text on blur (or reject it visibly), and expose the committed
+      value — not the edit buffer — as the control's value in the tree.
+    helps: [text-only, vision-only]

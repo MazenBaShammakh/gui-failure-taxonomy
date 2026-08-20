@@ -2,17 +2,12 @@
 """Streamlit browser for the GUI Agent Failure Taxonomy.
 
 Data model (see specs/taxonomy-structure.md): failure Types are the spine,
-defined in every *.yaml of taxonomy/<folder>/ except runs.yaml. How those
-files are split is a per-folder convention the loader doesn't care about:
-v2 splits by platform ({mobile,web,cross-platform,desktop}.yaml), v3 splits
-by category (PRC.yaml, IDT.yaml, … one per category code). Real-world
-evidence lives separately in taxonomy/<folder>/runs.yaml as Tasks, each
-holding one or more Runs, and each Run tags 1+ Types via a `failures[]`
-list (a many-to-many Run<->Type link). A type's `observed` facet values are
-not stored -- they're derived here from whichever runs tag that type.
-
-`<folder>` defaults to `v3` but is switchable from the sidebar -- any
-subdirectory of taxonomy/ containing a runs.yaml is auto-detected.
+defined in every *.yaml of taxonomy/ except runs.yaml, one file per category
+(PRC.yaml, IDT.yaml, … one per category code). Real-world evidence lives
+separately in taxonomy/runs.yaml as Tasks, each holding one or more Runs,
+and each Run tags 1+ Types via a `failures[]` list (a many-to-many
+Run<->Type link). A type's `observed` facet values are not stored -- they're
+derived here from whichever runs tag that type.
 
 Evidence is rendered as plain indented text: a bold task line followed by
 indented "↳" run lines, separated by a thin divider. This began as
@@ -30,19 +25,22 @@ import streamlit as st
 import yaml
 
 ROOT = Path(__file__).resolve().parent
-TAXONOMY_ROOT = ROOT / "taxonomy"
-DEFAULT_TAXONOMY_FOLDER = "v3"
+TAXONOMY_DIR = ROOT / "taxonomy"
 
+# Category order matches the thesis (thesis-tum/chapters/05_failure_taxonomy/
+# 03_failure_categories.tex): Perceptibility, Identifiability, Interaction
+# Affordance, Interaction Scope, Navigation Discoverability, Content
+# Organization, Structural Consistency, State Feedback, Temporal Dynamics.
 CATEGORY_LABELS = {
     "perceptibility": "Perceptibility",
     "identifiability": "Identifiability",
-    "structural_consistency": "Structural Consistency",
     "interaction_affordance": "Interaction Affordance",
+    "interaction_scope": "Interaction Scope",
     "navigation_discoverability": "Navigation Discoverability",
     "content_organization": "Content Organization",
+    "structural_consistency": "Structural Consistency",
     "state_feedback": "State Feedback",
     "temporal_dynamics": "Temporal Dynamics",
-    "interaction_scope": "Interaction Scope",
 }
 
 CAUSE_BADGE = {
@@ -75,30 +73,19 @@ PLATFORMS = ["web", "mobile", "desktop"]
 CATEGORY_CODES = {
     "perceptibility": "PRC",
     "identifiability": "IDT",
-    "structural_consistency": "STR",
     "interaction_affordance": "INA",
+    "interaction_scope": "INS",
     "navigation_discoverability": "NAV",
     "content_organization": "CNT",
+    "structural_consistency": "STR",
     "state_feedback": "FBK",
     "temporal_dynamics": "TMP",
-    "interaction_scope": "INS",
 }
 
-# v3 convention: one file per category, named for that category's code.
-# Empty for a v2-style folder, where file stems are platforms instead.
+# One file per category, named for that category's code.
 CODE_TO_CATEGORY = {code: cat for cat, code in CATEGORY_CODES.items()}
 
 RUNS_FILE = "runs.yaml"
-
-
-def discover_taxonomy_folders() -> list[str]:
-    if not TAXONOMY_ROOT.is_dir():
-        return [DEFAULT_TAXONOMY_FOLDER]
-    folders = sorted(
-        p.name for p in TAXONOMY_ROOT.iterdir()
-        if p.is_dir() and (p / RUNS_FILE).exists()
-    )
-    return folders or [DEFAULT_TAXONOMY_FOLDER]
 
 
 def _yaml_fingerprint(taxonomy_dir: Path) -> tuple[tuple[str, int], ...]:
@@ -131,11 +118,11 @@ def load_tasks(taxonomy_dir: Path, fingerprint: tuple[tuple[str, int], ...]) -> 
 
 
 def category_filename_mismatches(types: list[dict]) -> list[str]:
-    """Types sitting in a category-named file (v3) whose `category` field
+    """Types sitting in a category-named file whose `category` field
     disagrees with the filename -- e.g. an entry pasted into PRC.yaml but
     left as `category: state_feedback`. `category` is kept in every entry so
-    records stay self-contained, which means it can drift; this catches that.
-    Returns [] for a v2-style folder, where filenames carry no category."""
+    records stay self-contained, which means it can drift; this catches
+    that."""
     problems = []
     for t in types:
         expected = CODE_TO_CATEGORY.get(t["_source_file"])
@@ -147,12 +134,10 @@ def category_filename_mismatches(types: list[dict]) -> list[str]:
     return problems
 
 
-def source_of(task: dict, run: dict) -> str | None:
+def source_of(task: dict) -> str | None:
     """`source` describes the application an attempt targeted, so it belongs
-    to the Task -- it cannot differ between runs of the same task. v3 stores
-    it there. v2 stored it on each Run, so fall back to that; both folders
-    have to keep working."""
-    return task.get("source") or run.get("source")
+    to the Task -- it cannot differ between runs of the same task."""
+    return task.get("source")
 
 
 def build_type_index(tasks: list[dict]) -> dict[str, list[dict]]:
@@ -209,8 +194,6 @@ def render_evidence_flat(t: dict, index: dict[str, list[dict]], type_labels: dic
         if task.get("task_id"):
             caption_bits.append(f"Task ID: `{task['task_id']}`")
         if task.get("source"):
-            # v3: source lives on the Task, so show it once here rather
-            # than repeating it on every run line below.
             caption_bits.append(
                 f"Source: {SOURCE_BADGE.get(task['source'], task['source'])}")
         if caption_bits:
@@ -227,23 +210,18 @@ def render_evidence_flat(t: dict, index: dict[str, list[dict]], type_labels: dic
                 other_txt = f"  ·  also evidences: {others}"
             unverified = "  :gray[(unverified)]" if run.get(
                 "verified") is False else ""
-            # run_id is the harness's own id for the execution (v3 onward,
-            # absent in v2) -- the pointer back to the raw trace. Rendered
-            # as-is on purpose: one written with a `T`/space separator
-            # instead of `_` parses as a datetime, and showing YAML's
-            # reformatting of it is the tell that it's wrong.
+            # run_id is the harness's own id for the execution -- the
+            # pointer back to the raw trace. Rendered as-is on purpose: one
+            # written with a `T`/space separator instead of `_` parses as a
+            # datetime, and showing YAML's reformatting of it is the tell
+            # that it's wrong.
             harness_id = run.get("run_id")
             harness_txt = f"  :gray[{harness_id}]" if harness_id else ""
-            # Only repeat source per run when the Task doesn't carry it (v2).
-            run_source = None if task.get("source") else run.get("source")
-            source_txt = (
-                f"  ·  {SOURCE_BADGE.get(run_source, run_source)}"
-                if run_source else "")
             st.markdown(
                 f"&nbsp;&nbsp;&nbsp;&nbsp;↳ `{run['id']}`{harness_txt}{unverified}  ·  "
                 f"{run.get('representation', '—')} · {run.get('platform', '—')}  ·  "
                 f"{OUTCOME_BADGE.get(run.get('outcome'), run.get('outcome', '—'))}"
-                f"{source_txt}{other_txt}"
+                f"{other_txt}"
             )
             if run.get("notes"):
                 st.caption(
@@ -306,38 +284,17 @@ def main() -> None:
     st.set_page_config(page_title="GUI Failure Taxonomy",
                        page_icon="🧭", layout="wide")
 
-    available_folders = discover_taxonomy_folders()
-    with st.sidebar:
-        qp_folder = st.query_params.get("folder")
-        if qp_folder in available_folders:
-            default_folder = qp_folder
-        elif DEFAULT_TAXONOMY_FOLDER in available_folders:
-            default_folder = DEFAULT_TAXONOMY_FOLDER
-        else:
-            default_folder = available_folders[0]
-        selected_folder = st.selectbox(
-            "Taxonomy folder", available_folders,
-            index=available_folders.index(default_folder),
-        )
-        if selected_folder != DEFAULT_TAXONOMY_FOLDER:
-            st.query_params["folder"] = selected_folder
-        elif "folder" in st.query_params:
-            st.query_params.pop("folder", None)
-        st.divider()
-
-    taxonomy_dir = TAXONOMY_ROOT / selected_folder
-
     st.title("GUI Failure Taxonomy")
     st.caption(
-        f"Browse the taxonomy in `taxonomy/{selected_folder}/`. Types "
+        "Browse the taxonomy in `taxonomy/`. Types "
         "(Category → Failure) are the spine; real-world evidence is a Task "
         "with one or more Runs in `runs.yaml`, and each Run tags one or "
         "more Types."
     )
 
-    fingerprint = _yaml_fingerprint(taxonomy_dir)
-    types = load_types(taxonomy_dir, fingerprint)
-    tasks = load_tasks(taxonomy_dir, fingerprint)
+    fingerprint = _yaml_fingerprint(TAXONOMY_DIR)
+    types = load_types(TAXONOMY_DIR, fingerprint)
+    tasks = load_tasks(TAXONOMY_DIR, fingerprint)
     index = build_type_index(tasks)
     type_labels = {t["id"]: t["failure"] for t in types}
 
@@ -357,8 +314,7 @@ def main() -> None:
         all_stages = sorted({t.get("facets", {}).get("stage")
                              for t in types if t.get("facets", {}).get("stage")})
         all_sources = sorted({s for task in tasks
-                              for run in task.get("runs", []) or []
-                              if (s := source_of(task, run))})
+                              if task.get("runs") and (s := source_of(task))})
         all_outcomes = sorted({run.get("outcome") for task in tasks
                                for run in task.get("runs", []) if run.get("outcome")})
 
@@ -433,7 +389,7 @@ def main() -> None:
 
         entries = index.get(t["id"], [])
         if entries:
-            if not any(source_of(e["task"], e["run"]) in sel_sources for e in entries):
+            if not any(source_of(e["task"]) in sel_sources for e in entries):
                 return False
             if not any(e["run"].get("outcome") in sel_outcomes for e in entries):
                 return False
@@ -489,11 +445,7 @@ def main() -> None:
         for t in group:
             n_obs_t = observation_count(t, index)
             badge = f"({n_obs_t} observation{'s' if n_obs_t != 1 else ''})" if n_obs_t else "(predicted only)"
-            # Category files repeat the section header; only show the source
-            # file when it adds something (v2: the type's platform).
-            origin = ("" if t["_source_file"] in CODE_TO_CATEGORY
-                      else f"{t['_source_file']}  ")
-            label = f"{t['id']}  ·  {t['failure'].replace('_', ' ')}  ·  {origin}{badge}"
+            label = f"{t['id']}  ·  {t['failure'].replace('_', ' ')}  ·  {badge}"
             with st.expander(label, expanded=False):
                 render_type(t, index, type_labels)
 

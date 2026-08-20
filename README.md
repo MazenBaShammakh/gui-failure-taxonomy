@@ -38,13 +38,13 @@ runs** so far:
 | ---- | --------------------------- | ------------------------------------------------- | ----: |
 | PRC  | Perceptibility              | Can the agent see the element exists?              |     6 |
 | IDT  | Identifiability              | Can the agent understand what the element is?      |     5 |
-| STR  | Structural Consistency        | Does the structured tree match the rendered UI?    |     2 |
 | INA  | Interaction Affordance         | Can the agent figure out how to interact?          |     1 |
+| INS  | Interaction Scope                      | Are actions contained to the intended target?      |     4 |
 | NAV  | Navigation Discoverability      | Can the agent find the path to the target?         |     2 |
 | CNT  | Content Organization             | Is information structured for agent reasoning?     |     3 |
+| STR  | Structural Consistency        | Does the structured tree match the rendered UI?    |     2 |
 | FBK  | State Feedback                     | Does the UI communicate state and outcomes?        |     2 |
 | TMP  | Temporal Dynamics                    | Can the agent keep up with UI changes over time?   |     4 |
-| INS  | Interaction Scope                      | Are actions contained to the intended target?      |     4 |
 
 Across the 177 logged runs: failures are overwhelmingly **software-side**
 (162 of 176 tagged causes), and mostly occur at the **prediction** stage —
@@ -121,8 +121,8 @@ To stop the app, go back to the terminal and press `Ctrl+C`.
 
 | Path                      | What it is                                                                 |
 | -------------------------- | --------------------------------------------------------------------------- |
-| `taxonomy/v3/*.yaml` (except `runs.yaml`) | The failure type definitions — one file per category (e.g. `PRC.yaml`). |
-| `taxonomy/v3/runs.yaml`      | The evidence log — every Task attempted, each with one or more Runs.          |
+| `taxonomy/*.yaml` (except `runs.yaml`) | The failure type definitions — one file per category (e.g. `PRC.yaml`). |
+| `taxonomy/runs.yaml`      | The evidence log — every Task attempted, each with one or more Runs.          |
 | `app.py`                      | The Streamlit browser (`streamlit run app.py`).                               |
 | `benchmark/*.jsonl`               | The external task corpus (Mind2Web, AITW, LlamaTouch, OSWorld, gui-failure-suite) that benchmark-sourced Tasks are drawn from. |
 
@@ -139,7 +139,7 @@ To stop the app, go back to the terminal and press `Ctrl+C`.
 2. **Pick an ID.** `{CATEGORY}-{NNN}`, the next free number for that
    category:
    ```bash
-   grep "id: <CATEGORY>-" taxonomy/v3/<CATEGORY>.yaml
+   grep "id: <CATEGORY>-" taxonomy/<CATEGORY>.yaml
    ```
 3. **Write the record:**
    ```yaml

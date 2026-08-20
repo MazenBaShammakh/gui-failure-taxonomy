@@ -124,10 +124,7 @@ To stop the app, go back to the terminal and press `Ctrl+C`.
 | `taxonomy/v3/*.yaml` (except `runs.yaml`) | The failure type definitions — one file per category (e.g. `PRC.yaml`). |
 | `taxonomy/v3/runs.yaml`      | The evidence log — every Task attempted, each with one or more Runs.          |
 | `app.py`                      | The Streamlit browser (`streamlit run app.py`).                               |
-| `ui_prototypes/`                | Alternative, standalone browser layouts.                                       |
 | `benchmark/*.jsonl`               | The external task corpus (Mind2Web, AITW, LlamaTouch, OSWorld, gui-failure-suite) that benchmark-sourced Tasks are drawn from. |
-| `helper/`                            | Scripts for verification and regenerating the summary overview.                 |
-| `specs/`                                | Normative record schemas and field definitions.                                  |
 
 ---
 
@@ -192,11 +189,6 @@ To stop the app, go back to the terminal and press `Ctrl+C`.
    ```
 3. **Adding a Run to an existing Task** — append to that Task's `runs:` with
    the next unused letter (`T-050-b`, `T-050-c`, ...).
-4. **After editing**, regenerate the summary and sanity-check it:
-   ```bash
-   python helper/generate_overview.py
-   python helper/verify_benchmark_observations.py
-   ```
 
 ---
 

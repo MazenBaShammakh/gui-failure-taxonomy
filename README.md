@@ -1,4 +1,4 @@
-# GUI Agent Failure Taxonomy
+# GUI Failure Taxonomy
 
 A taxonomy of recurring GUI-agent failure modes — organized by **category**,
 **cause**, and **action stage** — backed by real evidence (tasks and runs) from
